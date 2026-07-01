@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  主題 001 · 變數與型別 — 教學文件（教學.html）
+  這是「repo 主要教材」：每一節都對應同資料夾的 sample-*.go 註解，
+  邊讀這裡、邊跑 sample，不用兩邊切換。看完再自己找對應影片補強。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種。
+  注意：HTML 註解不可巢狀，註解內別再放註解起訖符號或連續雙減號。
+  ============================================================================
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>001 · 變數與型別</title>
+<style>
+  :root{
+    --go-cyan:#00ADD8; --go-cyan-dark:#007d9c;
+    --ink:#1c2733; --muted:#5b6b7a; --bg:#f6f8fa; --card:#fff;
+    --border:#e1e8ed; --code-bg:#0f1720; --code-ink:#e6edf3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 001 · 變數與型別</h1>
+    <p>var / const / iota、基本型別與零值、型別轉換、運算符、scope —— 讀懂電商 domain model 的第一塊地基。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 var 宣告</a>
+    <a href="#s2">2 :=</a>
+    <a href="#s3">3 零值</a>
+    <a href="#s4">4 const</a>
+    <a href="#s5">5 scope</a>
+    <a href="#s6">6 基本型別</a>
+    <a href="#s7">7 運算符</a>
+    <a href="#s8">8 型別轉換</a>
+    <a href="#s9">9 iota</a>
+    <a href="#s10">10 String()</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===== 總覽 ===== -->
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((001 變數與型別))
+    宣告
+      var 四種寫法
+      短宣告 :=
+      零值 zero value
+      const 編譯期固定
+      scope 作用域
+    型別
+      int / float64
+      string / bool
+      顯式型別轉換
+      運算符 與 整數除法陷阱
+    列舉
+      const + iota
+      自訂型別
+      String 印名字
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼宣告變數/常數、Go 的「零值」是什麼、為什麼型別要「顯式轉換」、以及 Go 沒有 enum 時如何用 <code>iota</code> 做出型別安全的列舉。三個 sample 各對應一組概念，邊讀邊跑。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：變數宣告（sample-變數宣告-01）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 變數宣告：var / := / 零值 / const / scope</h2>
+    <div class="maplink">對應檔案：<code>sample-01-變數宣告.go</code> ｜ 跑：<code>go run 001-變數與型別/sample-01-變數宣告.go</code></div>
+
+    <h3 id="s1">1. var 的四種宣告寫法</h3>
+    <table>
+      <thead><tr><th>寫法</th><th>範例</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>先宣告後賦值</td><td><code>var name string</code></td><td>賦值前是「零值」（這裡是空字串）</td></tr>
+        <tr><td>宣告同時賦值＋明寫型別</td><td><code>var price int = 590</code></td><td>最完整、最囉嗦</td></tr>
+        <tr><td>省略型別（自動推斷）</td><td><code>var stock = 20</code></td><td>Go 從右邊值推出型別</td></tr>
+        <tr><td>批量宣告</td><td><code>var ( a = 1; b int = 2 )</code></td><td>一組相關變數放一起</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="s2">2. := 短變數宣告（函式內最常用）</h3>
+    <p><code>category := "周邊配件"</code> 等同「<code>var</code> ＋ 自動型別推斷」，但<b>只能寫在函式裡面</b>。</p>
+    <div class="callout conv"><strong>慣例</strong>函式內優先用 <code>:=</code>；型別能自動推斷就別多寫。這是 Go code 裡最常見的宣告方式。</div>
+    <div class="callout trap"><strong>陷阱</strong><code>:=</code> 不能用在函式外（package 層級）。package 層級的變數/常數只能用 <code>var</code> / <code>const</code>。</div>
+
+    <h3 id="s3">3. 零值 zero value —— Go 沒有「未初始化的垃圾值」</h3>
+    <p>只要宣告了沒給初值，Go 一律給一個明確的「零值」，不會是隨機記憶體：</p>
+    <table>
+      <thead><tr><th>型別</th><th>零值</th></tr></thead>
+      <tbody>
+        <tr><td><code>int</code> / <code>float64</code></td><td><code>0</code></td></tr>
+        <tr><td><code>string</code></td><td><code>""</code>（空字串）</td></tr>
+        <tr><td><code>bool</code></td><td><code>false</code></td></tr>
+        <tr><td><code>指標 / slice / map / interface</code></td><td><code>nil</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout key"><strong>電商意義</strong>新建一個 <code>Order</code>、沒填的欄位自動是零值（數量 0、金額 0、已付款 false）——這通常正好是「合理的初始狀態」，是 Go 刻意的設計。</div>
+
+    <h3 id="s4">4. const 常數（編譯期就固定）</h3>
+    <p><code>const taxRate = 0.05</code>：<b>執行期不能改</b>，適合稅率、狀態碼、上限這種「寫死的值」。寫法和 <code>var</code> 類似（可明寫型別或自動推斷、可批量）。</p>
+    <div class="callout conv"><strong>慣例</strong>常數常宣告在檔案/函式的<b>最上方</b>，一眼就能看到這支程式有哪些「不會變的設定」。</div>
+
+    <h3 id="s5">5. scope 作用域：變數只活在它的 <code>{ }</code> 內</h3>
+    <p>在一對大括號裡宣告的變數，離開那個區塊就消失。sample 裡的 <code>flashDiscount</code> 只在 <code>{ }</code> 內有效，外面再用會編譯失敗（<code>undefined</code>）。</p>
+    <div class="callout trap"><strong>陷阱：變數遮蔽 shadowing</strong>內層用 <code>:=</code> 宣告一個「同名」變數，會蓋掉外層的那個（是兩個不同變數）。改到的是內層那個、外層沒變——這是 Go 常見 bug，之後 <code>if err :=</code> 會再遇到。</div>
+  </section>
+
+  <!-- ===== 群組 B：型別轉換（sample-型別轉換-01）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 型別、運算符與型別轉換</h2>
+    <div class="maplink">對應檔案：<code>sample-02-型別轉換.go</code> ｜ 跑：<code>go run 001-變數與型別/sample-02-型別轉換.go</code></div>
+
+    <h3 id="s6">6. 基本型別</h3>
+    <table>
+      <thead><tr><th>型別</th><th>用途</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td><code>int</code></td><td>整數（數量、庫存、以「元」計的金額）</td><td>大小看平台（64 位機器上是 64 位）</td></tr>
+        <tr><td><code>float64</code></td><td>小數（折扣率、重量）</td><td>Go 小數字面值預設就是 float64</td></tr>
+        <tr><td><code>string</code></td><td>文字（名稱、SKU）</td><td>UTF-8，唯讀不可變</td></tr>
+        <tr><td><code>bool</code></td><td>真假（是否上架、是否 VIP）</td><td>只有 true / false</td></tr>
+      </tbody>
+    </table>
+    <div class="callout trap"><strong>電商大坑：金額別用 float！</strong>浮點數存不下精確的 <code>0.1</code>，累加會出現 <code>0.30000000000000004</code> 這種誤差，金流對帳會出事。實務慣例：金額用<b>整數存最小單位</b>（例如以「分」為單位，1500 = 15.00 元），或用 decimal 套件。sample 用 <code>int</code> 存「元」正是這個原因。</div>
+
+    <h3 id="s7">7. 運算符</h3>
+    <p>算術 <code>+ - * / %</code>、比較 <code>== != &gt; &lt; &gt;= &lt;=</code>、邏輯 <code>&amp;&amp; || !</code>。其中 <code>%</code> 是取餘數，常用在整除判斷與分頁。</p>
+    <div class="callout trap"><strong>整數除法會截斷</strong><code>100 / 3</code> 得到 <code>33</code>（不是 33.33），小數直接被丟掉。要小數請先轉 <code>float64</code>（見下節）。</div>
+
+    <h3 id="s8">8. 型別轉換：Go 一定要「顯式」轉</h3>
+    <p>Go <b>不會自動</b>幫你混算不同型別。<code>int</code> 和 <code>float64</code> 要一起算，必須手動轉：</p>
+    <pre><code>subtotal := 1770             <span class="cmt">// int</span>
+rate := 0.85                 <span class="cmt">// float64</span>
+total := float64(subtotal) * rate   <span class="cmt">// 先把 int 轉成 float64 才能相乘</span>
+n := int(total)              <span class="cmt">// float64 轉回 int → 直接「截斷」小數，不是四捨五入</span></code></pre>
+    <div class="callout key"><strong>語法</strong><code>T(x)</code> 就是「把 x 轉成型別 T」。這跟呼叫函式長得一樣，但 <code>int(...)</code> / <code>float64(...)</code> 是型別轉換。</div>
+    <div class="callout conv"><strong>補充</strong>數字↔字串不是用 <code>string(123)</code>（那是轉成 Unicode 字元！），要用標準庫 <code>strconv</code>（<code>strconv.Itoa</code> / <code>strconv.Atoi</code>）。這裡先知道有這回事即可。</div>
+  </section>
+
+  <!-- ===== 群組 C：iota 列舉（sample-iota列舉-01）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> 用 iota 做列舉（enum）</h2>
+    <div class="maplink">對應檔案：<code>sample-03-iota列舉.go</code> ｜ 跑：<code>go run 001-變數與型別/sample-03-iota列舉.go</code></div>
+
+    <h3 id="s9">9. const + iota</h3>
+    <p>Go <b>沒有 enum 關鍵字</b>。慣用做法：<b>自訂一個整數型別 ＋ iota 自動編號</b>，就得到一組有名字、有順序、型別安全的常數。</p>
+    <pre><code>type OrderStatus int
+const (
+    Pending   OrderStatus = iota <span class="cmt">// 0 待付款 ← 只在這寫一次 iota</span>
+    Paid                         <span class="cmt">// 1 已付款 ← 右邊省略，自動沿用 "= iota"</span>
+    Shipped                      <span class="cmt">// 2 已出貨</span>
+    Completed                    <span class="cmt">// 3 已完成</span>
+    Cancelled                    <span class="cmt">// 4 已取消</span>
+)</code></pre>
+    <div class="callout key"><strong>iota 的精確定義</strong>它是「<b>這一行在 const 區塊裡的索引（第幾行）</b>」，每個 const 區塊開頭重設為 0，跟你「第幾次寫 iota」無關。關鍵規則：某行把右邊算式整個省略 → 自動沿用上一行寫法，而 iota 每行 +1。</div>
+    <div class="callout trap"><strong>陷阱</strong>下面 <code>const7</code> 是 <b>2</b> 不是 0——因為它在區塊第 2 行，前兩行沒寫 iota 也照樣在數：<br><code>const ( a = 5; b int = 6; const7 = iota )</code> → <code>const7 == 2</code>。</div>
+
+    <h3 id="s10">10. 加 String() → 印出來是名字不是數字</h3>
+    <p>光有數字還不夠像 enum。幫型別加一個 <code>String()</code> 方法，印它時就會顯示中文：</p>
+    <pre><code>func (s OrderStatus) String() string {
+    names := []string{"待付款","已付款","已出貨","已完成","已取消"}
+    if s &lt; Pending || s &gt; Cancelled { return "未知狀態" }
+    return names[s]
+}</code></pre>
+    <div class="callout key"><strong>為什麼會自動印中文？</strong><code>fmt</code> 有個約定：型別只要「有 <code>String()</code> 方法」，用 <code>%v</code> 印它時就自動呼叫。<code>%v</code> 印名字、<code>%d</code> 印底層整數——兩者對照跑一次就懂。</div>
+    <div class="callout analogy"><strong>前情提要</strong>這種「只看你有沒有某個方法」的機制，就是 <b>interface</b> 的雛形（<code>Stringer</code> 介面）。等學到主題 007 介面會整個展開，這裡先感受一下。</div>
+  </section>
+
+  <!-- ===== 動手練習 ===== -->
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照檔案裡的 TODO 完成，然後 <code>go run</code> 跑跑看對不對。寫完可以請 Claude 批改，會記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-變數宣告.go</code></td><td>用不同宣告寫法建立一位會員的資料、觀察零值</td><td>印出名稱、點數 0、VIP false、餘額 0、禮金 100</td></tr>
+        <tr><td><code>homework-02-型別轉換.go</code></td><td>用型別轉換算含稅總額與每件單價</td><td>含稅總額 <code>1470.00</code>、每件 <code>367.50</code></td></tr>
+        <tr><td><code>homework-03-iota列舉.go</code></td><td>用 iota + String() 做「會員等級」列舉</td><td>印出「你的等級：金卡」與底層數字 <code>2</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 001-變數與型別/homework-01-變數宣告.go</code>。每個檔案都是獨立的（檔頭有 <code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <!-- ===== 慣例小抄 ===== -->
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>函式內宣告變數</td><td>優先 <code>:=</code>，型別能推斷就不寫</td></tr>
+        <tr><td>金額</td><td><b>別用 float</b>；用整數存最小單位（分）或 decimal 套件</td></tr>
+        <tr><td>int 和 float64 一起算</td><td>一定要顯式 <code>float64(x)</code> / <code>int(x)</code></td></tr>
+        <tr><td>整數相除想要小數</td><td>先各自轉 <code>float64</code> 再除</td></tr>
+        <tr><td>數字↔字串</td><td>用 <code>strconv</code>，不是 <code>string(123)</code></td></tr>
+        <tr><td>一組有名字的常數</td><td>自訂整數型別 ＋ <code>iota</code> ＋（要好讀就加）<code>String()</code></td></tr>
+        <tr><td><code>iota</code> 的值</td><td>是「行索引」，不是「第幾次寫 iota」</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 001 · 變數與型別 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

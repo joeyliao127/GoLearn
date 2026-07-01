@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  Go 學習總覽（學習總覽.html）— 放在 repo 根目錄
+  這是整個學習系統的入口與儀表板：課程路線圖、各主題完成度、弱項總表。
+  維護（給未來的 Claude）：
+    - 某主題狀態/作業數/平均分變動時 → 更新「進度表」該列與「最後更新」。
+    - 主題的「弱項雷達」有新內容 → 彙整到本頁「弱項總表」。
+    - Phase B 生出 002~013 後 → 把各列的「文件」連結補上、狀態維持未開始。
+  純前端、無建置、單一自包含 HTML；繁中。
+  ============================================================================
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go 學習總覽</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:34px 24px 26px}
+  header .wrap{max-width:1000px;margin:0 auto}
+  header h1{margin:0 0 6px;font-size:28px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  header .meta{margin-top:10px;font-size:13px;opacity:.85}
+  main{max-width:1000px;margin:0 auto;padding:26px 24px 80px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .card h2{margin:0 0 12px;font-size:20px}
+  .roadmap{overflow-x:auto}
+  .mermaid{text-align:center;min-width:760px}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  table{border-collapse:collapse;width:100%;margin:6px 0;font-size:14px}
+  th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:middle}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .st{padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+  .st-todo{background:#eef1f4;color:#5b6b7a}
+  .st-doing{background:#e0f5fb;color:#007d9c}
+  .st-done{background:#eafaf1;color:#1e8a4c}
+  .phase{font-weight:700;color:var(--go-cyan-dark);background:#f2fbfe}
+  a.doc{color:var(--go-cyan-dark);text-decoration:none;font-weight:600;border-bottom:1px dotted}
+  a.doc:hover{color:var(--go-cyan)}
+  .muted{color:var(--muted)}
+  .callout{border-radius:10px;padding:12px 16px;margin:12px 0;border-left:5px solid;font-size:14.5px;background:#eef4ff;border-color:#4a8cff}
+  .callout strong{margin-right:6px}
+  .legend{font-size:13px;color:var(--muted);margin-top:8px}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>🐹 Go 學習總覽</h1>
+    <p>目標：用社群慣用的方式，快速具備「讀懂並小幅貢獻電商 Go 專案」的基礎能力。</p>
+    <div class="meta">最後更新：2026-07-01　·　進度：1 / 13 主題進行中（001）</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="callout"><strong>怎麼用這個 repo 學</strong>以 <b>repo 教材為主、依編號 001 → 013 順序</b>學：讀該主題的 <code>教學.html</code> ＋ 對照 <code>sample-*.go</code> → 自己找對應主題的影片補強 → 寫 <code>homework-*.go</code>（每題 ≤5 分鐘）→ 請 Claude 批改、記進該主題的 <code>學習紀錄.html</code> → 回這裡看進度，再進下一個主題。</div>
+
+  <!-- ===== 路線圖 ===== -->
+  <section class="card">
+    <h2>課程路線圖</h2>
+    <div class="roadmap">
+      <pre class="mermaid">
+flowchart LR
+  subgraph A[基礎語法]
+    direction LR
+    T1["001 變數與型別"] --> T2["002 流程控制"] --> T3["003 函式"]
+  end
+  subgraph B[資料結構 · 讀懂 domain model]
+    direction LR
+    T4["004 集合"] --> T5["005 struct與方法"] --> T6["006 指標"] --> T7["007 介面"]
+  end
+  subgraph C[工程實務 · 貢獻與慣例]
+    direction LR
+    T8["008 錯誤處理"] --> T9["009 套件與慣例"] --> T10["010 併發基礎"] --> T11["011 context"] --> T12["012 JSON與時間"] --> T13["013 測試"]
+  end
+  T3 --> T4
+  T7 --> T8
+  class T1 doing;
+  classDef doing fill:#00ADD8,color:#fff,stroke:#007d9c,stroke-width:2px;
+      </pre>
+    </div>
+  </section>
+
+  <!-- ===== 進度表 ===== -->
+  <section class="card">
+    <h2>各主題完成度</h2>
+    <table>
+      <thead>
+        <tr><th style="width:52px">編號</th><th>主題</th><th style="width:82px">狀態</th><th style="width:80px">作業</th><th style="width:64px">平均分</th><th style="width:96px">最後更新</th><th style="width:130px">文件</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="7" class="phase">基礎語法</td></tr>
+        <tr><td>001</td><td>變數與型別</td><td><span class="st st-doing">進行中</span></td><td>0 / 3</td><td class="muted">—</td><td>2026-07-01</td><td><a class="doc" href="001-變數與型別/教學.html">教學</a> · <a class="doc" href="001-變數與型別/學習紀錄.html">紀錄</a></td></tr>
+        <tr><td>002</td><td>流程控制（if/switch、for、defer）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>003</td><td>函式（多回傳值、variadic、閉包）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td colspan="7" class="phase">資料結構 · 讀懂 domain model</td></tr>
+        <tr><td>004</td><td>集合（slice/map/array）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>005</td><td>struct 與方法（method/receiver/tag）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>006</td><td>指標（pointer receiver、new/make）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>007</td><td>介面（interface、DI / mock）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td colspan="7" class="phase">工程實務 · 貢獻與慣例</td></tr>
+        <tr><td>008</td><td>錯誤處理（err、wrap、errors.Is/As）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>009</td><td>套件與慣例（package、目錄結構）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>010</td><td>併發基礎（goroutine/channel/sync）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>011</td><td>context（cancel/timeout/值）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>012</td><td>JSON 與時間（json tag、time）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+        <tr><td>013</td><td>測試（table-driven、mock）</td><td><span class="st st-todo">未開始</span></td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">待建立</td></tr>
+      </tbody>
+    </table>
+    <div class="legend">狀態：<span class="st st-todo">未開始</span> · <span class="st st-doing">進行中</span> · <span class="st st-done">已完成</span>　｜　002–013 會在 001 審核通過後一次建立。</div>
+  </section>
+
+  <!-- ===== 弱項總表 ===== -->
+  <section class="card">
+    <h2>弱項總表</h2>
+    <p class="muted">彙整各主題「學習紀錄 › 弱項雷達」的內容，用來分析盲區、安排複習。目前尚無紀錄——做完作業、累積幾次批改後就會浮現。</p>
+    <table>
+      <thead><tr><th style="width:90px">主題</th><th>弱點 / 反覆卡關的點</th><th style="width:120px">狀態</th></tr></thead>
+      <tbody>
+        <tr><td class="muted" colspan="3">（尚無）</td></tr>
+        <!-- 格式範本：
+        <tr><td>001 變數與型別</td><td>金額誤用 float</td><td>待複習</td></tr>
+        -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== 後續路線 ===== -->
+  <section class="card">
+    <h2>基礎之後的路線（尚未排入）</h2>
+    <p class="muted">等 001–013 打底完成，再視需要加：HTTP 框架（gin/echo/chi）、資料庫（database/sql、sqlx、gorm）、generics。raw TCP 目前延後。</p>
+  </section>
+
+</main>
+
+<footer>Go 學習總覽 · 依 001 → 013 順序前進 · 持續更新 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

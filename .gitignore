@@ -1,0 +1,21 @@
+# Go 編譯產物（build artifacts；可用 go build 重新產生，不進版控）
+/golearn
+/hello
+*.exe
+*.test
+*.out
+
+# 各主題 sample/homework 用 `go run <檔>` 執行，不產生常駐 binary；
+# 若手動 go build 產生同名執行檔，補在這裡忽略即可。
+
+# 個人作答／編輯副本（自己保留練習存底用，永不進版控）
+*已作答*
+*已編輯*
+
+# 舊版學習內容的封存（保留在本機參考，不推上 GitHub）
+/_封存/
+
+# OS / 編輯器雜項
+.DS_Store
+.idea/
+*.swp
