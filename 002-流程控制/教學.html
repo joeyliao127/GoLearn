@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!--
+  主題 002 · 流程控制 — 教學文件（教學.html）
+  這是「repo 主要教材」：每一節都對應同資料夾的 sample-*.go 註解，邊讀這裡、邊跑 sample。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種；
+        每個 sample 對應一個 .topic 群組；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  注意：HTML 註解不可巢狀，註解內別再放註解起訖符號或連續雙減號。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>002 · 流程控制</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 002 · 流程控制</h1>
+    <p>if / switch 分支、for 迴圈（Go 只有這一種）、defer 資源清理 —— 讀懂電商 code 裡的判斷與流程，是能看懂結帳、出貨、扣庫存邏輯的關鍵。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 if</a>
+    <a href="#s2">2 else if</a>
+    <a href="#s3">3 if 初始化</a>
+    <a href="#s4">4 switch</a>
+    <a href="#s5">5 多值/default</a>
+    <a href="#s6">6 switch true</a>
+    <a href="#s7">7 for range</a>
+    <a href="#s8">8 三段式</a>
+    <a href="#s9">9 for 當 while</a>
+    <a href="#s10">10 defer 時機</a>
+    <a href="#s11">11 LIFO</a>
+    <a href="#s12">12 參數求值陷阱</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((002 流程控制))
+    if 判斷
+      if / else if / else
+      比較 與 邏輯運算子
+      if 帶初始化語句
+    switch
+      case 自動 break
+      一個 case 多個值
+      無條件 switch true
+      fallthrough 才貫穿
+    for 迴圈
+      Go 只有 for
+      for range 走訪
+      三段式 init;cond;post
+      當 while 用
+      無限迴圈 break/continue
+    defer
+      函式 return 才執行
+      多個 defer LIFO
+      參數當下就求值
+      資源清理慣例
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼用 <code>if</code> / <code>switch</code> 分支、Go 為什麼「只有 <code>for</code> 一種迴圈」（沒有 while / do-while）、以及 <code>defer</code> 如何保證資源一定被清理。四個 sample 各對應一組概念，邊讀邊跑。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：if 判斷（sample-01-if判斷）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> if 判斷：分支、比較/邏輯運算子、if 帶初始化</h2>
+    <div class="maplink">對應檔案：<code>sample-01-if判斷.go</code> ｜ 跑：<code>go run 002-流程控制/sample-01-if判斷.go</code></div>
+
+    <h3 id="s1">1. if / else if / else</h3>
+    <p>最基本的分支。Go 的寫法有兩個和 C/Java 明顯不同的慣例：</p>
+    <ul>
+      <li>條件式<b>不加小括號</b>：寫 <code>if amount &gt;= 999</code>，不是 <code>if (amount &gt;= 999)</code>。</li>
+      <li>大括號 <code>{ }</code> <b>一定要有</b>（就算只有一行），而且 <code>{</code> 必須跟在同一行結尾（這是 gofmt 強制的）。</li>
+    </ul>
+    <pre><code>if orderAmount &gt;= 999 {
+    fee = 0            <span class="cmt">// 滿額免運</span>
+} else {
+    fee = 60
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong><code>{</code> 一定和 <code>if</code>／<code>else</code> 同一行——這不是風格喜好，是 Go 語法規定（換行寫會編譯錯）。所以你在任何 Go 專案看到的分支長相都一樣，省去排版爭論。</div>
+
+    <h3 id="s2">2. 多段 else if</h3>
+    <p>由上往下逐條比對，<b>命中一條就結束</b>，不會再往下比。適合把金額切成幾個級距：</p>
+    <pre><code>if amount &gt;= 3000 {
+    <span class="cmt">// 送 100 購物金</span>
+} else if amount &gt;= 1500 {
+    <span class="cmt">// 送 50 購物金</span>
+} else {
+    <span class="cmt">// 未達門檻</span>
+}</code></pre>
+    <div class="callout analogy"><strong>類比</strong>一長串 <code>else if</code> 像「一關一關的門檻」，闖過第一道就進去了、後面的門不再檢查。若級距很多，第 6 節的「無條件 switch」會更好讀。</div>
+
+    <h3 id="s3">3. 比較 / 邏輯運算子 &amp; 「if 帶初始化語句」</h3>
+    <p>比較 <code>== != &gt; &lt; &gt;= &lt;=</code>；邏輯 <code>&amp;&amp;</code>（且）、<code>||</code>（或）、<code>!</code>（非）。<code>&amp;&amp;</code> 和 <code>||</code> 有<b>短路</b>特性：<code>a &amp;&amp; b</code> 若 <code>a</code> 為 false 就不會去算 <code>b</code>。</p>
+    <p>Go 特有語法：<code>if</code> 條件前可放一個「初始化語句」，用 <code>;</code> 隔開。這裡宣告的變數<b>只活在這組 if / else 裡</b>（scope 更小、更安全）：</p>
+    <pre><code>if remain := 999 - orderAmount; remain &gt; 0 {
+    fmt.Printf("再買 %d 元免運\n", remain)
+}
+<span class="cmt">// 這裡 remain 已消失，再用會 undefined</span></code></pre>
+    <div class="callout key"><strong>為什麼重要</strong>這正是電商 code 裡到處可見的 <code>if err := doSomething(); err != nil { ... }</code> 的骨架——先執行一件事、順手把結果（常是 <code>err</code>）綁進 if 的 scope，用完即丟。主題 008 錯誤處理會天天用到。</div>
+  </section>
+
+  <!-- ===== 群組 B：switch（sample-02-switch）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> switch：case 自動 break、多值、switch true</h2>
+    <div class="maplink">對應檔案：<code>sample-02-switch.go</code> ｜ 跑：<code>go run 002-流程控制/sample-02-switch.go</code></div>
+
+    <h3 id="s4">4. 基本 switch —— case 會「自動 break」</h3>
+    <p>依一個值分支。<b>Go 最大的不同：每個 case 執行完會自動跳出</b>，不用像 C/Java 在每個 case 尾巴寫 <code>break</code>（忘了寫就會不小心「貫穿」到下一個 case，那是 C 的經典 bug）。</p>
+    <pre><code>switch status {
+case Pending:
+    fmt.Println("提醒付款")
+case Paid:
+    fmt.Println("通知揀貨")   <span class="cmt">// 命中就停，不會漏到下面</span>
+default:
+    fmt.Println("轉人工")
+}</code></pre>
+    <div class="callout key"><strong>重點反轉</strong>C/Java 是「預設貫穿、要停得寫 break」；Go 是「預設停、要貫穿得寫 <code>fallthrough</code>」。Go 選了比較安全、比較符合直覺的預設。</div>
+
+    <h3 id="s5">5. 一個 case 列多個值 + default</h3>
+    <p>用逗號把多個值放進同一個 case，命中任一個就執行；<code>default</code> 接住其餘情況（放哪一行都行，慣例放最後）。</p>
+    <pre><code>switch status {
+case Pending, Cancelled:
+    fmt.Println("尚未進入出貨流程")
+case Paid, Shipped, Completed:
+    fmt.Println("已收款，訂單有效")
+}</code></pre>
+
+    <h3 id="s6">6. 無條件 switch（switch true）—— 取代一長串 else if</h3>
+    <p><code>switch</code> 後面<b>不接值</b>時，等同 <code>switch true</code>，會逐條檢查「哪個 case 的條件為真」。這是 Go 慣例：級距一多，它比一串 <code>else if</code> 好讀。</p>
+    <pre><code>switch {
+case amount &gt;= 3000:
+    fmt.Println("鑽石單")
+case amount &gt;= 1500:
+    fmt.Println("黃金單")   <span class="cmt">// 命中就停</span>
+default:
+    fmt.Println("一般單")
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>看到 <code>switch { case 條件: ... }</code>（switch 後面空空的）別困惑，這就是 Go 版的「if-else if 鏈」，在電商分級、狀態機邏輯裡很常見。</div>
+    <div class="callout trap"><strong>陷阱：fallthrough</strong>真想貫穿到下一個 case，得手動寫 <code>fallthrough</code>——它會<b>無條件</b>執行下一個 case（不再檢查那個 case 的條件！），很容易誤用，實務上很少出現。看到它要特別小心。</div>
+  </section>
+
+  <!-- ===== 群組 C：for 迴圈（sample-03-for迴圈）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> for 迴圈：Go 唯一的迴圈，四種形態</h2>
+    <div class="maplink">對應檔案：<code>sample-03-for迴圈.go</code> ｜ 跑：<code>go run 002-流程控制/sample-03-for迴圈.go</code></div>
+
+    <div class="callout key"><strong>核心觀念</strong>Go <b>只有 <code>for</code> 一個迴圈關鍵字</b>，沒有 <code>while</code>、沒有 <code>do-while</code>。別找了——所有迴圈需求都用 <code>for</code> 的不同寫法達成。</div>
+
+    <h3 id="s7">7. for range —— 走訪 slice/map 最常用</h3>
+    <p><code>range</code> 每輪回傳 <code>(索引, 元素副本)</code>。用不到索引就用 <code>_</code> 忽略（Go 不允許宣告了卻不用的變數，<code>_</code> 是「我故意不要」）。</p>
+    <pre><code>for _, item := range cart {
+    totalAmount += item.Price * item.Qty
+    totalQty    += item.Qty
+}</code></pre>
+    <div class="callout trap"><strong>陷阱：range 給的是「副本」</strong>迴圈裡的 <code>item</code> 是元素的<b>複製</b>，改 <code>item.Qty</code> 不會改到 <code>cart</code> 裡的原值。要改原值得用索引 <code>cart[i].Qty = ...</code>。（這牽涉到值/指標，主題 006 會講透。）</div>
+
+    <h3 id="s8">8. 三段式 for：init; condition; post</h3>
+    <p>最傳統的計數迴圈，三段用 <code>;</code> 隔開，需要「第幾項」時用它跑索引：</p>
+    <pre><code>for i := 0; i &lt; len(cart) &amp;&amp; i &lt; 2; i++ {
+    fmt.Println(cart[i].Name)   <span class="cmt">// 列出前 2 項當推薦</span>
+}</code></pre>
+
+    <h3 id="s9">9. for 當 while 用 / 無限迴圈</h3>
+    <p>把三段式只保留中間的「條件」，就是別的語言的 <code>while</code>；連條件都不寫就是無限迴圈 <code>for {}</code>，靠 <code>break</code> 跳出、<code>continue</code> 跳過本輪。</p>
+    <pre><code>for amount &lt; 5000 {      <span class="cmt">// = while (amount &lt; 5000)</span>
+    amount += 200
+}
+
+for {                    <span class="cmt">// 無限迴圈</span>
+    if done { break }    <span class="cmt">// 跳出整個迴圈</span>
+    if skip { continue } <span class="cmt">// 跳過本輪、進下一輪</span>
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>需要 while 就寫 <code>for 條件 { }</code>；需要無限迴圈（如 server 一直收請求）就寫 <code>for { }</code> 再靠 <code>break</code>／<code>return</code> 收場。這是最能看出「Go 只有 for」的地方。</div>
+  </section>
+
+  <!-- ===== 群組 D：defer（sample-04-defer）===== -->
+  <section class="topic">
+    <h2><span class="tag">D</span> defer：保證執行的收尾、LIFO、參數求值陷阱</h2>
+    <div class="maplink">對應檔案：<code>sample-04-defer.go</code> ｜ 跑：<code>go run 002-流程控制/sample-04-defer.go</code></div>
+
+    <h3 id="s10">10. defer 的時機：函式 return 之際才執行</h3>
+    <p><code>defer</code> 會把一個呼叫「登記起來」，<b>等所在函式即將 return 時才執行</b>。它專為「不管後面成功或失敗，最後都得做的收尾」而生——解鎖、關連線、關檔案。</p>
+    <pre><code>fmt.Println("鎖定庫存")
+defer fmt.Println("解鎖庫存")   <span class="cmt">// 登記，等 return 才跑</span>
+
+fmt.Println("開啟 DB 連線")
+defer fmt.Println("關閉 DB 連線")</code></pre>
+    <div class="callout conv"><strong>黃金慣例</strong>一「取得資源」就在<b>下一行</b>立刻 <code>defer</code>「釋放」，成對出現、不會忘（例如 <code>f, _ := os.Open(...); defer f.Close()</code>）。就算函式中途 <code>return</code> 或 panic，defer 依然會執行，資源不外漏。</div>
+
+    <h3 id="s11">11. 多個 defer 是 LIFO（後進先出）</h3>
+    <p>同一函式登記多個 <code>defer</code>，執行順序是<b>倒過來</b>的——最後登記的最先執行，像疊盤子：最後放上去的最先拿下來。</p>
+    <pre><code><span class="cmt">// 登記順序：解鎖庫存 → 關閉 DB 連線</span>
+<span class="cmt">// 執行順序（return 時）：關閉 DB 連線 → 解鎖庫存</span></code></pre>
+    <div class="callout key"><strong>為什麼是 LIFO</strong>因為資源常是「層層取得」的（先鎖庫存、再開連線），釋放就該「反向」進行（先關連線、再解鎖），才對得起取得的順序。LIFO 剛好自動幫你做到這件事。</div>
+
+    <h3 id="s12">12. 陷阱：defer 的「參數在當下就求值」</h3>
+    <p>最容易踩的雷：<code>defer f(x)</code> 裡的參數 <code>x</code>，是在<b>寫下 defer 那一刻</b>就被求值並「凍結」，不是等到 return 才算。</p>
+    <pre><code>stage := "下單"
+defer fmt.Println("defer 讀到：", stage)  <span class="cmt">// "下單" 當場被凍結</span>
+stage = "出貨"
+<span class="cmt">// return 時仍印「下單」，不是「出貨」！</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong>別以為 defer 會讀「最後的值」。參數在登記時就複製好了。想讀最新值，改包一層匿名函式（閉包在<b>執行時</b>才讀變數）：<code>defer func(){ fmt.Println(stage) }()</code>。閉包會留到主題 003 詳談。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-if判斷.go</code></td><td>用 if / else if / else 依會員等級給折扣，算應付金額</td><td>等級 2 應付 <code>900</code>；改成 3 → <code>800</code>、0 → <code>1000</code></td></tr>
+        <tr><td><code>homework-02-switch.go</code></td><td>用 switch 依付款方式回傳手續費</td><td>cod=<code>50</code>、credit=<code>30</code>、atm=<code>15</code>、其它=<code>0</code></td></tr>
+        <tr><td><code>homework-03-for迴圈.go</code></td><td>用 for range 走訪購物車，找出最貴的商品</td><td>印出「最貴商品：4K 螢幕（<code>8990</code> 元）」</td></tr>
+        <tr><td><code>homework-04-defer.go</code></td><td>用 defer 確保「訂單處理結束」壓在最後才印</td><td>輸出依序：開始處理→扣款完成→<b>訂單處理結束</b></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 002-流程控制/homework-01-if判斷.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>if 條件式</td><td><b>不加小括號</b>；<code>{</code> 必須和 <code>if</code>/<code>else</code> 同一行（語法規定）</td></tr>
+        <tr><td>執行一件事順手判斷結果</td><td>用 <code>if x := f(); cond { }</code>；變數只活在該 if 內（如 <code>if err := ...; err != nil</code>）</td></tr>
+        <tr><td>switch 的 case</td><td><b>自動 break</b>，不用寫；要貫穿才寫 <code>fallthrough</code>（很少用）</td></tr>
+        <tr><td>一長串 else if</td><td>改用<b>無條件 <code>switch { case 條件: }</code></b>（switch true），更好讀</td></tr>
+        <tr><td>需要 while / do-while</td><td>Go 沒有；用 <code>for 條件 { }</code>；無限迴圈用 <code>for { }</code> + <code>break</code></td></tr>
+        <tr><td>走訪 slice / map</td><td><code>for _, v := range xs</code>；用不到索引用 <code>_</code>；<b>v 是副本</b>，改它不動原值</td></tr>
+        <tr><td>取得資源（鎖 / 連線 / 檔案）</td><td>下一行立刻 <code>defer</code> 釋放；多個 defer 是 <b>LIFO</b>（後進先出）</td></tr>
+        <tr><td>defer 的參數</td><td>在<b>寫下 defer 當下就求值凍結</b>；想讀最新值改用 <code>defer func(){ ... }()</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 002 · 流程控制 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>
