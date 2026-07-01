@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<!--
+  主題 013 · 測試 — 教學文件（教學.html）
+  repo 的主要教材：每一節對應同資料夾 sample-*.go 的註解，邊讀邊跑。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>013 · 測試</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 013 · 測試</h1>
+    <p>會寫測試才敢改電商 code：學 <code>xxx_test.go</code> 檔名慣例、<code>func TestXxx(t *testing.T)</code>、table-driven 多案例、<code>t.Run</code> 子測試，以及用「介面」把依賴換成假實作（mock）來測業務邏輯。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 testing 基礎</a>
+    <a href="#s2">2 table-driven / t.Run</a>
+    <a href="#s3">3 介面 mock</a>
+    <a href="#s4">4 go test 指令</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((013 測試))
+    testing 基礎
+      檔名 xxx_test.go
+      func TestXxx(t *testing.T)
+      t.Errorf 續跑
+      t.Fatalf 中止
+    table-driven
+      一張表多案例
+      t.Run 子測試
+      失敗標出是哪列
+    介面 mock
+      依賴抽成 interface
+      假實作記錄互動
+      注入被測函式
+    go test 指令
+      go test ./...
+      -run 只跑某個
+      -v 看細節
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼幫一個函式寫測試、怎麼用 table-driven 一次涵蓋多組輸入、<code>t.Errorf</code> 與 <code>t.Fatalf</code> 差在哪，以及怎麼「用介面把依賴換成假實作（mock）」來測 service——這正是主題 007 介面埋下的伏筆。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>先讀本頁一節 → 打開同資料夾對應的 <code>xxx.go</code> 和 <code>xxx_test.go</code> 對照註解 → 跑 <code>go test ./013-testing/sample-01-basic</code>（<b>對整個資料夾、帶點路徑</b>）看它綠 → 再做該群組的 homework。</div>
+      <div class="callout conv"><strong>本主題和前面不一樣</strong>001–008 那種是「單檔 + <code>//go:build ignore</code> + <code>go run 檔.go</code>」；測試沒辦法這樣跑。這裡跟 009 一樣走<b>真 package</b>：程式和它的 <code>xxx_test.go</code> 放同資料夾、同 package，用 <code>go test ./資料夾</code> 跑。所以資料夾名一定是 <b>ASCII</b>（<code>013-testing</code>），中文會 <code>malformed import path</code>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：testing 基礎 + table-driven（sample-01-basic）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> testing 基礎與 table-driven</h2>
+    <div class="maplink">對應資料夾：<code>sample-01-basic/</code>（<code>shipping.go</code> + <code>shipping_test.go</code>）｜ 跑：<code>go test ./013-testing/sample-01-basic</code></div>
+
+    <h3 id="s1">1. 三個雷打不動的慣例</h3>
+    <p>Go 的測試不用裝任何套件、也沒有 <code>assert</code> 函式，全靠標準庫 <code>testing</code> ＋三條硬慣例：</p>
+    <table>
+      <thead><tr><th>慣例</th><th>規則</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td>檔名</td><td>一定是 <code>xxx_test.go</code></td><td><code>go test</code> 只認這種檔名；正式 <code>go build</code> 時它會被忽略（不會進 binary）</td></tr>
+        <tr><td>函式簽名</td><td><code>func TestXxx(t *testing.T)</code></td><td><code>Test</code> 大寫開頭 + 收一個 <code>*testing.T</code>，<code>go test</code> 才會把它當測試跑</td></tr>
+        <tr><td>package</td><td>通常和被測程式<b>同 package</b></td><td>同 package 才測得到未匯出（小寫）的東西；<code>shipping_test.go</code> 就寫 <code>package shipping</code></td></tr>
+      </tbody>
+    </table>
+    <pre><code><span class="cmt">// shipping.go —— 被測程式：滿 1000 免運，否則 60</span>
+package shipping
+
+func Fee(orderAmount int) int {
+    if orderAmount &gt;= 1000 {
+        return 0
+    }
+    return 60
+}</code></pre>
+    <pre><code><span class="cmt">// shipping_test.go —— 最基本的測試：自己 if 比對，不符就 t.Errorf</span>
+package shipping
+
+import "testing"
+
+func TestFee(t *testing.T) {
+    if got := Fee(1000); got != 0 {
+        t.Errorf("Fee(1000) = %d, want %d", got, 0)   <span class="cmt">// 慣例訊息：got vs want</span>
+    }
+}</code></pre>
+    <div class="callout conv"><strong>失敗訊息的慣例寫法</strong>Go 圈子習慣寫成 <code>函式(輸入) = 實際, want 期望</code>，例如 <code>Fee(1000) = 999, want 0</code>。看 log 一眼就知道「誰、輸入什麼、拿到什麼、該是什麼」。</div>
+    <div class="callout trap"><strong><code>t.Errorf</code> vs <code>t.Fatalf</code></strong><code>t.Errorf</code>＝記一筆失敗<b>但繼續往下跑</b>（想一次看到多個錯用它）；<code>t.Fatalf</code>＝記失敗<b>並立刻中止這個測試</b>（用在「前置條件都不成立、再測下去沒意義」，例如某個回傳的 <code>err != nil</code> 就別再碰它的結果了）。都不會讓程式 panic，只影響「這個測試」。</div>
+
+    <h3 id="s2">2. table-driven：一張表 + 一個迴圈，涵蓋多案例</h3>
+    <p>只測一兩個值不夠。Go <b>最常見</b>的寫法是把「輸入 / 期望」列成一張表，再用迴圈跑，每列包一層 <code>t.Run(子測試名, ...)</code>：</p>
+    <pre><code>func TestFee_Table(t *testing.T) {
+    tests := []struct {
+        name string   <span class="cmt">// 子測試名，會顯示在輸出</span>
+        in   int       <span class="cmt">// 輸入</span>
+        want int       <span class="cmt">// 期望</span>
+    }{
+        {"剛好滿千免運", 1000, 0},
+        {"差一元未達門檻", 999, 60},
+        {"金額為零收運費", 0, 60},
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {          <span class="cmt">// 每列一個子測試</span>
+            if got := Fee(tt.in); got != tt.want {
+                t.Errorf("Fee(%d) = %d, want %d", tt.in, got, tt.want)
+            }
+        })
+    }
+}</code></pre>
+    <div class="callout key"><strong>為什麼 table-driven 好</strong>加案例＝加一列（不用複製一整個 test 函式）；配 <code>t.Run</code> 後，某列失敗會標出是<b>哪一列</b>（如 <code>TestFee_Table/差一元未達門檻</code>），而且其他列<b>照跑不中斷</b>，一次看到全部結果。</div>
+    <div class="callout analogy"><strong>類比</strong>像 Excel 對答案：左邊填「題目」、右邊填「正解」，然後一列一列核。程式邏輯只寫一次，資料一直加就好。</div>
+    <div class="callout conv"><strong><code>t.Run</code> 的名字</strong>子測試名會被正規化（空白轉底線）用在 <code>-run</code> 過濾，例如 <code>go test -run TestFee_Table/金額為零</code> 只跑那一列。取有意義的名字，log 才好讀。</div>
+  </section>
+
+  <!-- ===== 群組 B：用介面 mock 依賴（sample-02-mock）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 用介面注入 mock 來測</h2>
+    <div class="maplink">對應資料夾：<code>sample-02-mock/</code>（<code>notify.go</code> + <code>notify_test.go</code>）｜ 跑：<code>go test ./013-testing/sample-02-mock</code></div>
+
+    <h3 id="s3">3. 依賴抽成介面，測試時換成假實作</h3>
+    <p>要測「註冊完寄歡迎信」的邏輯，但總不能每跑一次測試就真的寄一封信。解法＝把「怎麼送」抽成<b>介面</b>（呼應主題 007：介面在使用方定義、小介面單方法、隱式實作），測試時塞一個「假的實作」進去：</p>
+    <pre><code><span class="cmt">// notify.go —— 依賴的是「介面」，不是某個具體寄信器</span>
+package notify
+
+type Notifier interface {
+    Send(msg string) error
+}
+
+func Welcome(n Notifier, name string) error {   <span class="cmt">// 被測對象</span>
+    return n.Send("歡迎 " + name)
+}</code></pre>
+    <pre><code><span class="cmt">// notify_test.go —— mockNotifier：不真送，只記錄「被呼叫幾次 / 收到什麼」</span>
+package notify
+
+import "testing"
+
+type mockNotifier struct {
+    calls   int
+    lastMsg string
+}
+
+func (m *mockNotifier) Send(msg string) error {   <span class="cmt">// 有 Send → 自動實作 Notifier</span>
+    m.calls++
+    m.lastMsg = msg
+    return nil
+}
+
+func TestWelcome(t *testing.T) {
+    mock := &amp;mockNotifier{}
+    if err := Welcome(mock, "小明"); err != nil {   <span class="cmt">// 前置條件壞了就直接中止</span>
+        t.Fatalf("Welcome 回傳非預期錯誤：%v", err)
+    }
+    if mock.calls != 1 {                            <span class="cmt">// 斷言①：剛好呼叫 1 次</span>
+        t.Errorf("Send 被呼叫 %d 次, want %d", mock.calls, 1)
+    }
+    if want := "歡迎 小明"; mock.lastMsg != want {    <span class="cmt">// 斷言②：訊息正確</span>
+        t.Errorf("Send 收到訊息 = %q, want %q", mock.lastMsg, want)
+    }
+}</code></pre>
+    <div class="callout key"><strong>mock 的本質＝實作介面</strong>mock 不是什麼魔法，就是「一個為測試而寫的假型別，剛好有介面要的方法」。它把互動（呼叫次數、收到的參數）記下來，讓你 <b>斷言「被測程式有沒有正確使喚它」</b>——不用碰真的資料庫 / 寄信服務。</div>
+    <div class="callout conv"><strong>為什麼能注入</strong><code>Welcome</code> 收的是 <code>Notifier</code>（介面），不是 <code>*EmailSender</code>（具體型別）。正式跑傳真的寄信器、測試傳 mock——這就是「依賴注入 + 介面」讓程式好測的原因。</div>
+    <div class="callout trap"><strong>mock 命名可小寫</strong>因為 <code>mockNotifier</code> 只在測試檔用，故意小寫（未匯出）不外流。它一樣要用<b>指標 receiver</b>（<code>*mockNotifier</code>）才改得到自己的 <code>calls</code>；注入時記得傳 <code>&amp;mockNotifier{}</code>。</div>
+  </section>
+
+  <!-- ===== 群組 C：go test 指令（概念）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> go test 指令速查</h2>
+    <div class="maplink">概念為主（無對應單一 sample）；平常跑測試就這幾個。</div>
+
+    <h3 id="s4">4. 常用 go test 指令</h3>
+    <table>
+      <thead><tr><th>指令</th><th>做什麼</th></tr></thead>
+      <tbody>
+        <tr><td><code>go test ./...</code></td><td>跑整個 module 所有測試（最常用）</td></tr>
+        <tr><td><code>go test ./013-testing/...</code></td><td>只跑某個目錄（含子目錄）底下的測試</td></tr>
+        <tr><td><code>go test ./013-testing/sample-01-basic</code></td><td>跑單一 package 的測試</td></tr>
+        <tr><td><code>go test -run TestFee</code></td><td><b>只跑</b>名字符合的測試（正則）；子測試用 <code>-run TestFee_Table/金額為零</code></td></tr>
+        <tr><td><code>go test -v ./...</code></td><td>verbose，逐一印出每個測試 / 子測試 PASS/FAIL</td></tr>
+        <tr><td><code>go test -race ./...</code></td><td>開競態偵測（並發程式必跑，呼應主題 010）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>綠色才算過</strong>整包過會印 <code>ok &nbsp;golearn/013-testing/sample-01-basic</code>；沒有測試檔會印 <code>no test files</code>；有一個 <code>t.Errorf</code>/<code>t.Fatalf</code> 觸發就整包 <code>FAIL</code>。第二次跑同樣結果會顯示 <code>(cached)</code>＝結果被快取、沒真的重跑。</div>
+    <div class="callout key"><strong>驗證「測試有效」的小技巧</strong>把被測程式<b>故意改壞</b>（例如讓 <code>Fee</code> 回錯的值），跑 <code>go test</code> 確認它真的 <code>FAIL</code>、且訊息指得出哪裡錯，再改回來。一個「不管程式對錯都 PASS」的測試是假的安全感。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應資料夾的 <code>xxx_test.go</code>，照 TODO 把測試補完，用 <code>go test</code> 驗證變綠。程式（被測那支）已經幫你寫好、可運作，你要練的是<b>寫測試</b>。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-basic/</code><br>（<code>discount_test.go</code>）</td><td>把 <code>TestApply</code> 改成 <b>table-driven</b>（比照 <code>sample-01-basic</code> 的 <code>TestFee_Table</code>），涵蓋多組折扣。</td><td>補上並通過 <code>Apply(1000,10)==900</code>、<code>Apply(1000,100)==0</code>、<code>Apply(1000,0)==1000</code>；<code>go test</code> 全綠。</td></tr>
+        <tr><td><code>homework-02-mock/</code><br>（<code>signup_test.go</code>）</td><td>自己寫一個 <code>fakeRepo</code> 實作 <code>Repo</code> 介面，注入 <code>Register</code>，驗證 <code>Save</code> 有被呼叫到、且收到正確 <code>id</code>（比照 <code>sample-02-mock</code>）。</td><td><code>Register(fake,"user-1")</code> 後：<code>err==nil</code>、<code>Save</code> 呼叫 1 次、收到的 id 是 <code>"user-1"</code>；<code>go test</code> 全綠。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>對整個資料夾跑（帶點路徑）：<code>go test ./013-testing/homework-01-basic</code>；想看細節加 <code>-v</code>。<b>注意</b>：起始骨架本來就會 PASS（起始 case 或空測試），所以「綠」不代表做完——要照 TODO 真的補上斷言，才算把 homework 完成。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>測試檔命名</td><td>被測是 <code>foo.go</code> → 測試放 <code>foo_test.go</code>，同資料夾同 package</td></tr>
+        <tr><td>測試函式</td><td><code>func TestXxx(t *testing.T)</code>（<code>Test</code> 大寫開頭 + 收 <code>*testing.T</code>）</td></tr>
+        <tr><td>斷言</td><td>沒有 assert；自己 <code>if got != want { t.Errorf(...) }</code>，訊息寫 <code>got, want 期望</code></td></tr>
+        <tr><td>續跑 vs 中止</td><td><code>t.Errorf</code>＝記錯續跑；<code>t.Fatalf</code>＝記錯並中止該測試（前置條件壞了才用）</td></tr>
+        <tr><td>多案例</td><td>table-driven：<code>[]struct{name;in;want}</code> + <code>for range</code> + <code>t.Run(tt.name, ...)</code></td></tr>
+        <tr><td>測有依賴的邏輯</td><td>依賴抽成 <b>介面</b>，測試注入 mock（假實作，記錄互動）——mock 就是「實作介面的假型別」</td></tr>
+        <tr><td>常用指令</td><td><code>go test ./...</code>（全跑）、<code>-run TestXxx</code>（挑著跑）、<code>-v</code>（看細節）、<code>-race</code>（測並發）</td></tr>
+        <tr><td>資料夾命名（真 package 特例）</td><td><b>只能 ASCII</b>（<code>013-testing</code>）；中文會 <code>malformed import path</code>，連 <code>go test</code> 都跑不動</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 013 · 測試 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

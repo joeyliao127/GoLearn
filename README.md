@@ -63,7 +63,7 @@ go run 002-流程控制/sample-04-defer.go
 go run 008-錯誤處理/sample-02-包裝與Is.go
 ```
 
-> ⚠️ 因為整個 repo 的檔案都是獨立腳本，`go build ./...` / `go vet ./...` 會顯示 **`matched no packages`**——這是**預期行為**，不是壞掉。要靜態檢查請用單檔：`go vet <檔>`；要檢查格式：`gofmt -l 資料夾/*.go`。
+> ⚠️ 大多數主題（001–008、010–012）的檔案是獨立腳本（`//go:build ignore`），會被 `./...` 跳過；只有 **009／013 這類「真 package」主題**會被 `go build ./...` 編到。若整個 module 當下沒有真 package，`./...` 會顯示 `matched no packages`（也正常）。平時靜態檢查用單檔：`go vet <檔>`；格式：`gofmt -l 資料夾/*.go`。
 >
 > （這也是刻意的教學設計：同一資料夾放多個 `main()`，靠 `//go:build ignore` 讓它們互不干擾、半成品作業也不會弄壞整包 build。）
 

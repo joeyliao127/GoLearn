@@ -38,7 +38,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 資料夾與檔案結構慣例
 
-- 主題資料夾：`NNN-主題名`（三位數、編號即順序）。
+- 主題資料夾：`NNN-主題名`（三位數、編號即順序）。**例外**：需要「真 package」的主題（如 `009-packages`、未來的 `013-testing`）其資料夾與放 package 的子資料夾**必須用 ASCII**——因為會進 import 路徑，而 Go 的 import 路徑不收中文（會 `malformed import path`）；這類主題的 HTML 標題/標籤仍保留中文。
 - 範例／作業檔：`sample-NN-<子主題>.go`、`homework-NN-<子主題>.go`。**NN 是「資料夾內從 01 起累加的流水號」**：跨子主題共用同一序列、號碼放最前面方便 01/02/03 排序；sample 與 homework 同號成對（`sample-02-型別轉換` ↔ `homework-02-型別轉換`）。**同一子主題可佔多個號碼**——每個 homework 有 5 分鐘上限，一個子主題常要拆成幾個小作業才驗收得完整（例如型別轉換用 02、03 兩組），既守住 5 分鐘又涵蓋完整。
 - 每個 `sample` / `homework` 都是**自成一格的 `package main` + `func main()`**，檔頭第一行是 `//go:build ignore`（後面接一個空行再寫 package）。
 - 每個主題資料夾各一份 `教學.html` 與 `學習紀錄.html`；根目錄一份 `學習總覽.html`。
@@ -51,7 +51,7 @@ go run 001-變數與型別/sample-01-變數宣告.go
 
 （這已查證可行：命令列明確指名的檔案不套用 build 限制，就像標準庫 `crypto/tls/generate_cert.go` 的用法。）
 
-> ⚠️ 因為每個檔都是 `//go:build ignore`，整個 module **沒有任何可建置的 package**，所以 `go build ./...` / `go vet ./...` 會顯示 `matched no packages`——這是**預期行為**，不是壞掉。要檢查就用單檔：`go vet <檔>`、`gofmt -l 資料夾/*.go`。
+> ⚠️ 單檔主題（001–008、010–012）都是 `//go:build ignore`，會被 `./...` 跳過；只有 **009/013 這類「真 package」主題**會被 `go build ./...` 編到（正常）。若當下 module 內沒有任何真 package，`./...` 會顯示 `matched no packages`（也正常）。平時檢查單檔用：`go vet <檔>`、`gofmt -l 資料夾/*.go`。
 
 ## 硬限制（務必遵守）
 

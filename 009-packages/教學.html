@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!--
+  主題 009 · 套件與慣例 — 教學文件（教學.html）
+  repo 的主要教材：每一節對應同資料夾 sample-*.go 的註解，邊讀邊跑。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>009 · 套件與慣例</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 009 · 套件與慣例</h1>
+    <p>讀懂電商 repo 的骨架：資料夾＝package、大小寫＝匯出控制、import 路徑、cmd/internal/pkg 目錄慣例、命名與 fmt/vet。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 資料夾=package</a>
+    <a href="#s2">2 大小寫匯出</a>
+    <a href="#s3">3 import 路徑</a>
+    <a href="#s4">4 目錄結構</a>
+    <a href="#s5">5 命名慣例</a>
+    <a href="#s6">6 fmt / vet</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((009 套件與慣例))
+    package
+      一個資料夾=一個 package
+      大小寫=匯出控制
+      import 路徑=module+資料夾
+    目錄結構
+      cmd 進入點
+      internal 私有
+      pkg 可共用
+    慣例
+      MixedCaps 命名
+      縮寫整段大寫
+      gofmt / go vet
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>Go 怎麼用「資料夾」切 package、怎麼用「大小寫」控制公開/私有、跨 package 怎麼 import 呼叫，以及電商專案常見的目錄結構（cmd/internal/pkg）與命名慣例。</div>
+      <div class="callout conv"><strong>本主題比較特別</strong>前面 001–008 每個範例是「單檔」；這裡因為要示範<b>跨 package</b>，改用「<b>真 package</b>」：一個資料夾放 <code>main.go</code>＋一個子套件，用 <code>go run ./資料夾</code>（帶點、對整個 package）執行。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：package 與匯出（sample-01-crosspkg）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> package、匯出與 import</h2>
+    <div class="maplink">對應檔案：<code>sample-01-crosspkg/</code>（真 package）｜ 跑：<code>go run ./009-packages/sample-01-crosspkg</code></div>
+
+    <h3 id="s1">1. 一個資料夾 = 一個 package</h3>
+    <p>Go 沒有「用檔案分模組」這回事——<b>切 package 就是切資料夾</b>。同一個資料夾裡所有 <code>.go</code> 檔開頭都寫同一個 <code>package 名稱</code>，它們合起來就是「一個 package」。慣例上<b>資料夾名和 package 名取一致</b>（資料夾 <code>pricing/</code> → <code>package pricing</code>）。</p>
+    <pre><code><span class="cmt">// 009-packages/sample-01-crosspkg/pricing/pricing.go</span>
+package pricing
+
+func Total(unitPrice, qty int) int { ... }   <span class="cmt">// 這個檔屬於 pricing 這個 package</span></code></pre>
+
+    <h3 id="s2">2. 大小寫 = 唯一的存取控制（匯出 / 私有）</h3>
+    <div class="callout key"><strong>規則</strong>識別字（函式、型別、變數、struct 欄位、常數）<b>大寫開頭＝匯出（public，跨 package 可用）</b>；<b>小寫開頭＝未匯出（private，只有同 package 能用）</b>。Go 沒有 <code>public</code>/<code>private</code> 關鍵字，就靠大小寫。</div>
+    <table>
+      <thead><tr><th>名字</th><th>身分</th><th>別的 package 用得到嗎</th></tr></thead>
+      <tbody>
+        <tr><td><code>pricing.Total</code></td><td>匯出（大寫）</td><td>✅ 可 <code>pricing.Total(...)</code></td></tr>
+        <tr><td><code>pricing.applyTax</code></td><td>未匯出（小寫）</td><td>❌ 跨包呼叫會編譯失敗：<code>cannot refer to unexported name</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="s3">3. import 路徑 = module 名 + 資料夾路徑</h3>
+    <p>要用別的 package，先 <code>import</code> 它的<b>完整路徑</b>（= <code>go.mod</code> 裡的 module 名 <code>golearn</code> ＋ 資料夾路徑），再用 <code>套件名.函式名</code> 呼叫：</p>
+    <pre><code><span class="cmt">// 009-packages/sample-01-crosspkg/main.go</span>
+package main
+
+import (
+    "fmt"
+    "golearn/009-packages/sample-01-crosspkg/pricing"  <span class="cmt">// module 名 + 資料夾</span>
+)
+
+func main() {
+    fmt.Printf("含稅總額：%d 元\n", pricing.Total(590, 3))  <span class="cmt">// 套件名.函式名 → 1858</span>
+}</code></pre>
+    <div class="callout trap"><strong>陷阱（我們踩過）：import 路徑只能用 ASCII！</strong>如果資料夾名有中文，<code>go run ./資料夾</code> / <code>go build</code> 會直接報 <code>malformed import path: invalid char '套'</code>——因為資料夾名會變成 import 路徑的一部分，而 Go 的 import 路徑不收非 ASCII 字元。<br>這就是為什麼本主題（與 013 測試）這種「真 package」主題，<b>資料夾用英文</b>（<code>009-packages</code>）；而 001–008 那種<b>單檔</b>主題用 <code>go run 檔.go</code>（不經 import 路徑），資料夾才可以是中文。</div>
+    <div class="callout conv"><strong>怎麼跑</strong>真 package 用 <code>go run ./009-packages/sample-01-crosspkg</code>（<b>帶點的路徑、對整個資料夾</b>），不是 <code>go run 某個.go</code>。</div>
+  </section>
+
+  <!-- ===== 群組 B：目錄結構（概念）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 電商專案的目錄結構慣例</h2>
+    <div class="maplink">概念為主（無對應單一 sample）；接手電商 repo 時最常看到的 layout。</div>
+
+    <h3 id="s4">4. cmd / internal / pkg</h3>
+    <p>Go 沒有硬性規定目錄結構，但社群有一套「大家都這樣擺」的慣例（源自 <i>standard-go-project-layout</i>）。看電商 repo 幾乎都會遇到：</p>
+    <table>
+      <thead><tr><th>目錄</th><th>放什麼</th><th>重點</th></tr></thead>
+      <tbody>
+        <tr><td><code>cmd/</code></td><td>各個「進入點」main package，如 <code>cmd/api/</code>、<code>cmd/worker/</code></td><td>一個子資料夾一顆執行檔</td></tr>
+        <tr><td><code>internal/</code></td><td>只給「本專案」用的私有 package（業務邏輯多半在這）</td><td><b>Go 強制</b>：<code>internal/</code> 裡的 package <b>外部 module 無法 import</b></td></tr>
+        <tr><td><code>pkg/</code></td><td>刻意想給「外部」也能重用的函式庫</td><td>非必要；沒有要被外部用就別放</td></tr>
+      </tbody>
+    </table>
+    <pre><code>myshop/
+├── go.mod                  <span class="cmt">// module github.com/acme/myshop</span>
+├── cmd/
+│   └── api/main.go         <span class="cmt">// 進入點：啟動 HTTP server</span>
+├── internal/
+│   ├── order/              <span class="cmt">// 訂單領域（外部 import 不到）</span>
+│   └── payment/            <span class="cmt">// 金流領域</span>
+└── pkg/
+    └── money/              <span class="cmt">// 可對外重用的金額工具</span></code></pre>
+    <div class="callout key"><strong><code>internal/</code> 是語言層級的保護</strong>把不想被外部依賴的東西放進 <code>internal/</code>，編譯器會擋掉外部 module 的 import。電商核心邏輯通常都藏在這裡。</div>
+  </section>
+
+  <!-- ===== 群組 C：命名 / fmt / vet（sample-02-命名慣例）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> 命名慣例與 fmt / vet</h2>
+    <div class="maplink">對應檔案：<code>sample-02-命名慣例.go</code>（單檔）｜ 跑：<code>go run 009-packages/sample-02-命名慣例.go</code></div>
+
+    <h3 id="s5">5. Go 的命名慣例</h3>
+    <table>
+      <thead><tr><th>情境</th><th>慣例</th><th>例</th></tr></thead>
+      <tbody>
+        <tr><td>一般命名</td><td><b>MixedCaps</b> 駝峰，<b>不用底線</b></td><td><code>getUserName</code>（非 <code>get_user_name</code>）</td></tr>
+        <tr><td>縮寫</td><td><b>整段同大小寫</b></td><td><code>OrderID</code>、<code>httpURL</code>（非 <code>OrderId</code>/<code>httpUrl</code>）</td></tr>
+        <tr><td>常數</td><td>也是 MixedCaps，<b>不是</b> SCREAMING_CASE</td><td><code>maxRetry</code>（非 <code>MAX_RETRY</code>）</td></tr>
+        <tr><td>error 變數</td><td><code>ErrXxx</code></td><td><code>ErrNotFound</code>（主題 008 已見）</td></tr>
+        <tr><td>package 名</td><td>短、全小寫、無底線</td><td><code>order</code>、<code>pricing</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout analogy"><strong>為什麼</strong>命名慣例讓「大小寫」不只是風格、而是<b>語意</b>（大寫＝匯出）；縮寫整段大寫則避免 <code>OrderId</code> 這種一半大一半小的尷尬。整個 Go 生態都這樣寫，照做才「像 Go」。</div>
+
+    <h3 id="s6">6. gofmt 與 go vet</h3>
+    <div class="callout conv"><strong>gofmt：沒有風格之爭</strong>Go 有官方統一排版，存檔跑 <code>gofmt -w 檔</code>（或編輯器自動）就對齊，team 裡不用吵縮排/括號。本 repo 檢查格式：<code>gofmt -l 資料夾/*.go</code>（列出不合格式的檔，空＝OK）。</div>
+    <div class="callout conv"><strong>go vet：抓編譯器不管的地雷</strong>如 <code>Printf</code> 格式字串對不上參數、鎖被複製等。單檔／單 package 檢查：<code>go vet 檔</code> 或 <code>go vet ./資料夾</code>。</div>
+    <div class="callout trap"><strong>提醒</strong><code>go vet</code>／<code>gofmt</code> <b>不會</b>幫你改命名（那是 golint/revive 之類的事）；命名要自己照慣例來。</div>
+  </section>
+
+  <!-- ===== 動手練習 ===== -->
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-crosspkg/</code>（真 package）</td><td>完成 <code>coupon</code> package 的匯出函式 <code>Apply</code>，用它未匯出的 <code>clampZero</code>，讓 main 跨包算折後金額</td><td><code>Apply(1000,300)=700</code>、<code>Apply(1000,1500)=0</code></td></tr>
+        <tr><td><code>homework-02-命名慣例.go</code>（單檔）</td><td>把 4 個不符慣例的命名改成 Go 慣例</td><td>改成 MixedCaps/縮寫大寫後仍能 <code>go run</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法（兩種模式）</strong>真 package：<code>go run ./009-packages/homework-01-crosspkg</code>（帶點、對資料夾）；單檔：<code>go run 009-packages/homework-02-命名慣例.go</code>。</div>
+  </section>
+
+  <!-- ===== 慣例小抄 ===== -->
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>切 package</td><td>切資料夾；同資料夾同 <code>package</code>；資料夾名＝package 名</td></tr>
+        <tr><td>公開 / 私有</td><td>大寫＝匯出、小寫＝私有（唯一存取控制）</td></tr>
+        <tr><td>跨包呼叫</td><td><code>import "module名/資料夾"</code> → <code>套件名.函式名</code></td></tr>
+        <tr><td>import 路徑</td><td><b>只能 ASCII</b>；真 package 主題資料夾用英文</td></tr>
+        <tr><td>私有邏輯</td><td>放 <code>internal/</code>，外部 module import 不到</td></tr>
+        <tr><td>命名</td><td>MixedCaps、不用底線、縮寫整段大寫、<code>ErrXxx</code>、package 名短小寫</td></tr>
+        <tr><td>格式 / 靜態檢查</td><td><code>gofmt -w</code>（無風格之爭）、<code>go vet</code>（抓地雷）</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 009 · 套件與慣例 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>
