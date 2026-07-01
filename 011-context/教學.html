@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--
+  主題 011 · context — 教學文件（教學.html）
+  這是「repo 主要教材」：每一節都對應同資料夾的 sample-*.go 註解，邊讀這裡、邊跑 sample。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種；
+        每個 sample 對應一個 .topic 群組；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  注意：HTML 註解不可巢狀，註解內別再放註解起訖符號或連續雙減號。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>011 · context</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 011 · context</h1>
+    <p><code>context.Context</code> 是電商後端的「請求生命線」—— 取消、逾時、帶著 request 範圍的值一路往下傳。看懂它，你就看懂了為什麼幾乎每個 web handler、每個 DB 查詢的第一個參數都是 <code>ctx</code>。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 為何要 context</a>
+    <a href="#s2">2 當第一參數傳</a>
+    <a href="#s3">3 根 context</a>
+    <a href="#s4">4 WithTimeout</a>
+    <a href="#s5">5 select/Done</a>
+    <a href="#s6">6 defer cancel</a>
+    <a href="#s7">7 WithCancel</a>
+    <a href="#s8">8 未匯出 key</a>
+    <a href="#s9">9 WithValue</a>
+    <a href="#s10">10 讀值/斷言</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((011 context))
+    為何要 context
+      取消 訊號
+      逾時 deadline
+      request 範圍的值
+    傳遞
+      ctx 放第一參數
+      命名固定叫 ctx
+      層層往下傳
+      根用 Background
+    cancel 與 timeout
+      WithTimeout 自動逾時
+      WithCancel 主動喊卡
+      defer cancel 一定要
+      select 等 ctx.Done
+      Err DeadlineExceeded 或 Canceled
+    value 與慣例
+      WithValue 帶值
+      key 用未匯出型別
+      斷言回原型別
+      只放 request-scoped
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>為什麼電商 code 到處都是 <code>ctx</code>：它讓一條呼叫鏈能被「統一取消／設逾時」，還能沿路攜帶像 <code>requestID</code> 這種 request 範圍的值。三個 sample 分別對應「傳遞」「逾時與取消」「帶值」。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+      <div class="callout analogy"><strong>先有個畫面</strong>把 <code>ctx</code> 想成餐廳的「這一桌的服務鈴＋點餐單」：整桌（一個請求）共用一個鈴，經理一按（cancel／逾時），從前台到廚房全都收到「這桌不做了」；點餐單上還夾著桌號（requestID），每個經手的人都看得到。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：傳遞（sample-01-傳遞）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 傳遞：為何要 context、ctx 當第一參數、根 context</h2>
+    <div class="maplink">對應檔案：<code>sample-01-傳遞.go</code> ｜ 跑：<code>go run 011-context/sample-01-傳遞.go</code></div>
+
+    <h3 id="s1">1. 為什麼需要 context</h3>
+    <p>想像一個電商請求進來：<code>handler → service → repository → DB</code>。這條鏈上如果<b>顧客關掉頁面</b>、或<b>已經等太久</b>，我們會希望「整條鏈一起停下來」，別再白白佔用 DB 連線。可是這些函式各自獨立，怎麼一起收到「停」的訊號？</p>
+    <p>答案就是 <code>context.Context</code>：它是一個沿著呼叫鏈往下傳的物件，攜帶三種 request 範圍的東西——</p>
+    <ul>
+      <li><b>取消訊號</b>：上游一喊停，下游全收到。</li>
+      <li><b>逾時 / deadline</b>：超過時間自動視為取消。</li>
+      <li><b>request 範圍的值</b>：像 <code>requestID</code>、登入者身分（第 8~10 節細講）。</li>
+    </ul>
+    <div class="callout key"><strong>為什麼重要</strong>電商後端幾乎每個「會 I/O、會花時間」的函式（HTTP handler、DB 查詢、呼叫外部 API）都吃 <code>ctx</code>。看懂 context，你才讀得懂這些函式簽章為什麼長那樣，也才寫得出「可以被取消／逾時」的正確程式。</div>
+
+    <h3 id="s2">2. ctx 當「第一個參數」，型別 context.Context，命名叫 ctx</h3>
+    <p>這是 Go 鐵一般的慣例：只要函式可能要被取消／逾時／讀 request 範圍值，就把 <code>ctx</code> 放<b>參數列最前面</b>，型別寫 <code>context.Context</code>，變數就叫 <code>ctx</code>。</p>
+    <pre><code><span class="cmt">// 慣例長相：ctx 一定在最前面</span>
+func handleGetOrder(ctx context.Context, orderID int) { ... }
+func getOrderService(ctx context.Context, orderID int) (Order, error) { ... }
+func getOrderFromDB(ctx context.Context, orderID int) (Order, error) { ... }</code></pre>
+    <div class="callout conv"><strong>慣例</strong><code>ctx</code> 放第一參數、命名固定叫 <code>ctx</code>。中間層就算自己沒用到 <code>ctx</code>，也<b>有義務把它繼續往下傳</b>，讓最底層（DB）也收得到取消／逾時訊號。</div>
+    <div class="callout trap"><strong>陷阱：別把 ctx 存進 struct</strong>不要把 <code>ctx</code> 當欄位塞進 struct 長期保存。<code>ctx</code> 是「跟著一次請求走」的、生命週期很短；存進 struct 會讓它活太久、語意也亂掉。慣例就是「用參數傳」，每次呼叫顯式帶著它。</div>
+
+    <h3 id="s3">3. 根 context：Background()</h3>
+    <p>最上層要先有一個「根」<code>ctx</code>。慣例：<b>main、程式初始化、測試、以及「剛收到一個請求」的地方</b>，都用 <code>context.Background()</code>——它永不取消、沒有值、沒有逾時，是一切 <code>ctx</code> 的起點，之後才在它上面「派生」出帶逾時或帶值的子 <code>ctx</code>。</p>
+    <pre><code>ctx := context.Background()   <span class="cmt">// 根 ctx（真的 web 框架會幫你準備好）</span>
+handleGetOrder(ctx, 1001)     <span class="cmt">// 往下傳</span></code></pre>
+    <div class="callout conv"><strong>Background vs TODO</strong>還有一個 <code>context.TODO()</code>，長得跟 <code>Background()</code> 一樣，語意是「我還不確定該用哪個 ctx，先佔位」。正式的起點用 <code>Background()</code>；只有在「這裡以後應該要有真正的 ctx、但我暫時還沒接上」時才用 <code>TODO()</code>。</div>
+  </section>
+
+  <!-- ===== 群組 B：逾時與取消（sample-02-逾時與取消）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 逾時與取消：WithTimeout / WithCancel、select、defer cancel</h2>
+    <div class="maplink">對應檔案：<code>sample-02-逾時與取消.go</code> ｜ 跑：<code>go run 011-context/sample-02-逾時與取消.go</code></div>
+
+    <p>情境：結帳時要呼叫「外部金流閘道」授權刷卡。這種外部呼叫可能很慢，我們不能無限等——給它一個逾時，超過就放棄、回錯誤給顧客，別卡住整條請求。</p>
+
+    <h3 id="s4">4. WithTimeout：派生一個「會自己逾時的 ctx」</h3>
+    <p><code>context.WithTimeout(parent, d)</code> 從一個父 <code>ctx</code> 派生出子 <code>ctx</code>，並回傳<b>兩個值</b>：帶逾時的 <code>ctx</code>，加一個 <code>cancel</code> 函式。過了 <code>d</code> 這段時間，子 <code>ctx</code> 會自動被取消。</p>
+    <pre><code>ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+<span class="cmt">// 200ms 後，ctx 自動進入「已取消」狀態</span></code></pre>
+    <div class="callout analogy"><strong>類比</strong>像叫外送時設一個鬧鐘：「200ms 內沒送到就別等了」。時間一到，鬧鐘（<code>ctx</code>）自動響，通知所有在等的人「不等了」。<code>WithDeadline</code> 是它的雙胞胎，差別只在「你給的是一段時間長度，還是一個明確的時間點」。</div>
+
+    <h3 id="s5">5. 用 select 等「做完」或「ctx.Done()」</h3>
+    <p>怎麼「同時等操作完成、又能被逾時打斷」？用 <code>select</code>：一邊等操作結果的 channel，一邊等 <code>ctx.Done()</code>——這是一個「<code>ctx</code> 被取消時就會關閉」的 channel。誰先發生就走誰。</p>
+    <pre><code>select {
+case &lt;-ctx.Done():
+    <span class="cmt">// ctx 被取消或逾時了。ctx.Err() 說明原因：</span>
+    <span class="cmt">// 逾時 → context.DeadlineExceeded；被主動取消 → context.Canceled</span>
+    return ctx.Err()
+case auth := &lt;-done:
+    <span class="cmt">// 授權在期限內完成</span>
+    fmt.Println("授權成功：", auth)
+}</code></pre>
+    <div class="callout key"><strong>核心句型</strong><code>select { case &lt;-ctx.Done(): return ctx.Err() ... }</code> 是 context 最經典的用法。<code>ctx.Done()</code> 給你「何時該停」的訊號、<code>ctx.Err()</code> 給你「為什麼停」的原因。判斷是不是逾時可用 <code>errors.Is(ctx.Err(), context.DeadlineExceeded)</code>（<code>errors.Is</code> 來自主題 008）。</div>
+
+    <h3 id="s6">6. 黃金慣例：拿到 cancel 就立刻 defer cancel()</h3>
+    <p><code>WithTimeout</code> / <code>WithCancel</code> / <code>WithDeadline</code> 都會回傳一個 <code>cancel</code> 函式。<b>不管你有沒有用到它、也不管會不會自己逾時，都一定要呼叫 <code>cancel()</code></b>，否則它綁的計時器／內部資源會洩漏。放在 <code>defer</code> 最保險：</p>
+    <pre><code>ctx, cancel := context.WithTimeout(parent, 200*time.Millisecond)
+defer cancel()   <span class="cmt">// 下一行立刻 defer，不管從哪條路徑 return 都會清理</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>看到 <code>WithTimeout</code> / <code>WithCancel</code>，下一行幾乎一定是 <code>defer cancel()</code>——這和主題 002 學的「取得資源就下一行 <code>defer</code> 釋放」是同一套肌肉記憶。<code>go vet</code> 也會抓「拿了 cancel 卻沒呼叫」的漏洞。</div>
+    <div class="callout trap"><strong>陷阱：別忽略 cancel</strong>有人覺得「反正 <code>WithTimeout</code> 會自己逾時，cancel 不用管」——錯。就算會逾時，提早完成時你也該<b>馬上</b> cancel 來釋放資源；<code>defer cancel()</code> 幫你在函式結束時一定補上這一刀。用 <code>_ = cancel</code> 把它丟掉是明確的 bug。</div>
+
+    <h3 id="s7">7. WithCancel：主動喊卡</h3>
+    <p><code>WithTimeout</code> 是「時間到自動取消」；<code>context.WithCancel(parent)</code> 則是「<b>由你決定何時取消</b>」——呼叫它回傳的 <code>cancel()</code>，<code>ctx.Done()</code> 就會關閉。適合「其中一件事失敗或不需要了，就取消其餘還在跑的工作」。</p>
+    <pre><code>ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+<span class="cmt">// 風控判定可疑 → 主動喊停：</span>
+cancel()   <span class="cmt">// ctx.Done() 關閉、ctx.Err() 變 context.Canceled</span></code></pre>
+    <div class="callout analogy"><strong>類比</strong><code>WithTimeout</code> 像設定的鬧鐘（時間到自己響）；<code>WithCancel</code> 像你手上的開關（你想關就關）。兩者常一起用：主流程設逾時，某個子任務出事時再手動 cancel 提早收工。</div>
+    <div class="callout conv"><strong>延伸（主題 010 銜接）</strong>主題 010 併發基礎會學到 <code>select</code> 搭配多個 channel、以及 goroutine。context 的 <code>ctx.Done()</code> 正是把「取消」變成一個 channel，讓它能自然融進 <code>select</code>——這是「用 context 控制一群 goroutine 生死」的基礎。</div>
+  </section>
+
+  <!-- ===== 群組 C：傳值（sample-03-傳值）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> 傳值：WithValue、未匯出 key、型別斷言、慎用</h2>
+    <div class="maplink">對應檔案：<code>sample-03-傳值.go</code> ｜ 跑：<code>go run 011-context/sample-03-傳值.go</code></div>
+
+    <p>情境：每個進來的請求都帶一個 <code>requestID</code>（給 log 追蹤用），有時還有登入的會員 ID。這種「跟著這個請求走、每層都可能想讀」的值，不方便一路加進每個函式的參數列，就放進 <code>ctx</code> 帶著走。</p>
+
+    <h3 id="s8">8. key 用「自訂的未匯出型別」，不要用字串</h3>
+    <p><code>context</code> 是全程式共用的。如果大家都用字串 <code>"requestID"</code> 當 key，不同套件很容易「不小心用了同一個字串」而互相覆蓋。慣例是宣告一個<b>只有本套件看得到的私有型別</b>當 key，從型別層面保證不撞：</p>
+    <pre><code>type ctxKey int   <span class="cmt">// 未匯出（小寫開頭），外部套件拿不到，也就無法覆蓋</span>
+
+const (
+    keyRequestID ctxKey = iota   <span class="cmt">// 用 iota 給每個 key 一個獨一無二的值</span>
+    keyUserID
+)</code></pre>
+    <div class="callout trap"><strong>陷阱：別用字串或內建型別當 key</strong>寫 <code>ctx.Value("requestID")</code> 能動，但兩個套件用同一個字串就會互踩。<code>go vet</code> 會警告「不該用內建型別當 context key」。正解永遠是「自訂未匯出型別 + 常數」。</div>
+
+    <h3 id="s9">9. 用 WithValue 把值「疊」上去</h3>
+    <p><code>context.WithValue(parent, key, val)</code> 派生一個「帶上這組 key/value」的新 <code>ctx</code>。可以一層層疊很多組。慣例上會包成小 helper，讓呼叫端不用直接碰 key：</p>
+    <pre><code>ctx = withRequestID(ctx, "req-20260701-4417")     <span class="cmt">// 包過的 helper</span>
+ctx = context.WithValue(ctx, keyUserID, 88001)    <span class="cmt">// 直接寫也行</span>
+
+func withRequestID(ctx context.Context, id string) context.Context {
+    return context.WithValue(ctx, keyRequestID, id)
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>把「塞值」和「取值」都各包一個函式（<code>withRequestID</code> / <code>requestIDFrom</code>），呼叫端只給值、看不到 key 細節，也把型別斷言集中在一處。</div>
+
+    <h3 id="s10">10. 讀值：型別斷言 + 處理「拿不到」</h3>
+    <p><code>ctx.Value(key)</code> 回傳 <code>any</code>（<code>interface{}</code>），要用<b>「逗號 ok」型別斷言</b>轉回原本型別；若這個 key 沒被設過，會拿到 <code>nil</code>、<code>ok</code> 為 <code>false</code>：</p>
+    <pre><code>func requestIDFrom(ctx context.Context) string {
+    if id, ok := ctx.Value(keyRequestID).(string); ok {
+        return id
+    }
+    return "unknown"   <span class="cmt">// 拿不到就給預設值，別 panic</span>
+}</code></pre>
+    <div class="callout trap"><strong>陷阱：只放 request-scoped 的東西</strong><code>WithValue</code> 很好用，但<b>別濫用成「萬用參數袋」</b>。只放「跟著這個請求走」的資料：<code>requestID</code>、登入者身分、追蹤用的 trace ID。函式真正的<b>正經輸入</b>（訂單金額、商品清單）該用一般參數傳；像 DB 連線、logger 這種相依，該用主題 007 的介面注入——不要塞進 <code>ctx</code>。塞進去會讓函式簽章騙人（看不出它真正需要什麼）、還喪失編譯期檢查。</div>
+    <div class="callout key"><strong>一句話記住</strong><code>ctx.Value</code> 是給「橫向、跨層、跟著請求走」的中繼資料用的，不是拿來偷懶傳參數的。判準：這個值「換一個請求就會變、且沿途很多層都可能想讀」→ 適合放 ctx；否則用參數。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-傳遞.go</code></td><td>寫 <code>getStock(ctx, sku)</code>，把 <code>ctx</code> 當第一參數；main 用 <code>Background()</code> 建根 ctx 呼叫它</td><td>印出「查詢 sku=SKU-001 的庫存」與「SKU-001 庫存：<code>42</code> 件」兩行</td></tr>
+        <tr><td><code>homework-02-逾時與取消.go</code></td><td>用 <code>WithTimeout</code>（100ms）+ <code>defer cancel()</code> + <code>select</code>，替慢操作（300ms）加逾時</td><td>逾時先到 → 印「逾時放棄寄送通知」；改逾時為 <code>500ms</code> → 改印「通知已寄出：SMS-OK」</td></tr>
+        <tr><td><code>homework-03-傳值.go</code></td><td>用 <code>WithValue</code> 把 <code>requestID</code> 放進 ctx，於 <code>logAction</code> 用型別斷言讀回</td><td>印「[log] req=<code>req-777</code> 動作=付款」；拿掉 WithValue 那行則印 <code>req=unknown</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 011-context/homework-01-傳遞.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>函式要吃 context</td><td><code>ctx</code> 放<b>第一個參數</b>、型別 <code>context.Context</code>、命名固定叫 <code>ctx</code></td></tr>
+        <tr><td>context 該放哪</td><td>用<b>參數傳</b>，<b>別存進 struct</b>；它是 request 生命週期、活得很短</td></tr>
+        <tr><td>最上層的根 ctx</td><td>main / 初始化 / 測試 / 收到請求處用 <code>context.Background()</code>；暫時佔位用 <code>TODO()</code></td></tr>
+        <tr><td>加逾時</td><td><code>ctx, cancel := context.WithTimeout(parent, d)</code>，下一行 <b><code>defer cancel()</code></b></td></tr>
+        <tr><td>主動取消</td><td><code>context.WithCancel(parent)</code>，呼叫 <code>cancel()</code> 即取消；一樣 <code>defer cancel()</code></td></tr>
+        <tr><td>等操作 vs 等取消</td><td><code>select { case &lt;-ctx.Done(): return ctx.Err(); case v := &lt;-done: ... }</code></td></tr>
+        <tr><td>判斷取消原因</td><td><code>ctx.Err()</code>：逾時是 <code>context.DeadlineExceeded</code>、主動取消是 <code>context.Canceled</code></td></tr>
+        <tr><td>context key</td><td>用<b>自訂未匯出型別</b>（如 <code>type ctxKey int</code>）當 key，<b>別用字串</b>（會撞、vet 會警告）</td></tr>
+        <tr><td>讀 context 值</td><td><code>v, ok := ctx.Value(key).(T)</code>，做逗號 ok 斷言，拿不到給預設值、別 panic</td></tr>
+        <tr><td>什麼能放進 ctx.Value</td><td>只放 <b>request-scoped</b>（requestID、使用者身分…）；正經輸入用參數、相依用介面注入</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 011 · context · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

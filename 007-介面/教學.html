@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<!--
+  主題 007 · 介面 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>007 · 介面</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 007 · 介面</h1>
+    <p>介面把「要做什麼」和「怎麼做」拆開——這是讀懂電商後端 <code>service</code> / <code>repository</code> 骨架的鑰匙。學會隱式實作、小介面、用介面做依賴注入與 mock，就能看懂（並小改）真實專案的分層架構。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 介面是什麼</a>
+    <a href="#s2">2 隱式實作</a>
+    <a href="#s3">3 duck typing</a>
+    <a href="#s4">4 小介面 / -er</a>
+    <a href="#s5">5 介面在使用方定義</a>
+    <a href="#s6">6 依賴注入</a>
+    <a href="#s7">7 換實作</a>
+    <a href="#s8">8 mock</a>
+    <a href="#s9">9 any / 型別斷言</a>
+    <a href="#s10">10 nil interface 陷阱</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((007 介面))
+    介面基礎
+      介面 = 一組方法簽章
+      隱式實作 不寫 implements
+      duck typing 會這招就算數
+      小介面 常單方法 -er 命名
+      介面切片 統一處理多實作
+    依賴注入 DI
+      介面在 使用方 定義
+      service 只認介面
+      constructor 注入實作
+      換實作 呼叫端不改
+    mock
+      mock 也是實作介面
+      記錄互動 次數 內容
+      注入錯誤 測錯誤處理
+      前導 013 測試
+    補充
+      any = interface 空集合
+      型別斷言 v ok := x.(T)
+      nil interface 陷阱
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>介面怎麼把「要做什麼」與「怎麼做」拆開：<b>隱式實作</b>（不寫 <code>implements</code>）、<b>小介面</b>、把介面定義在<b>使用方</b>、用介面做<b>依賴注入（DI）</b>與<b>mock</b>。三個 sample 各對應一組概念，這是讀懂電商 service/repository 架構的核心。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。本主題接續 005（struct/方法）、006（指標與 receiver），並替 013（測試）鋪路。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：介面基礎（sample-01-介面基礎）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 介面基礎：隱式實作、duck typing、小介面</h2>
+    <div class="maplink">對應檔案：<code>sample-01-介面基礎.go</code> ｜ 跑：<code>go run 007-介面/sample-01-介面基礎.go</code></div>
+
+    <h3 id="s1">1. 介面是什麼——一組「方法簽章」的集合</h3>
+    <p>介面（<code>interface</code>）就是一張「能力清單」：列出「要有哪些方法」，但<b>不寫實作</b>。以「發訂單通知」為例，我們不在乎是 Email 還是簡訊，只要求「會 <code>Send</code>」：</p>
+    <pre><code>type Notifier interface {
+    Send(message string) error   <span class="cmt">// 只有簽章，沒有 { 實作 }</span>
+}</code></pre>
+    <div class="callout analogy"><strong>類比</strong>介面像徵才的「職位需求」：職缺寫「需要會 <code>Send</code>（發送）的人」，至於你是用 Email 部門還是簡訊部門的方式完成，公司不管——會做這件事就能上工。</div>
+
+    <h3 id="s2">2. 隱式實作——不用寫 <code>implements</code></h3>
+    <p>這是 Go 和 Java/C# 最不一樣的地方：<b>一個型別只要「剛好」有介面要求的所有方法，就自動算實作了那個介面</b>，完全不用宣告。</p>
+    <pre><code>type EmailNotifier struct{ From string }
+
+<span class="cmt">// 簽章 (message string) error 和 Notifier 完全一致 → 自動就是 Notifier</span>
+func (e EmailNotifier) Send(message string) error {
+    fmt.Printf("[Email] %s\n", message)
+    return nil
+}
+<span class="cmt">// 注意：整份檔案「沒有」任何 implements Notifier 的字樣</span></code></pre>
+    <div class="callout key"><strong>為什麼重要</strong>「實作」和「介面」可以<b>互不知道對方存在</b>：<code>EmailNotifier</code> 不必 import 定義 <code>Notifier</code> 的套件，也能滿足它。這讓你能替<b>別人寫的型別</b>（甚至標準庫的型別）補上「它符合我這個介面」，是 Go 解耦的關鍵。</div>
+    <div class="callout conv"><strong>怎麼確定有沒有實作到</strong>編譯器會在你「把它當介面用」時幫你檢查。想在編譯期就強制驗證，可寫一行 <code>var _ Notifier = EmailNotifier{}</code>——沒實作完就編譯失敗（這是社群常見的守門寫法）。</div>
+
+    <h3 id="s3">3. duck typing——「會這招，就當你是」</h3>
+    <p>因為是隱式實作，Email 和 SMS 這兩個八竿子打不著的型別，都能塞進同一個 <code>Notifier</code> 變數。這種「不看你是什麼型別，只看你會不會這些方法」的風格叫 <b>duck typing</b>：</p>
+    <pre><code>var n Notifier
+n = EmailNotifier{From: "shop@x.com"}   <span class="cmt">// Email 當 Notifier</span>
+n.Send("訂單 #1001 已成立")
+
+n = SMSNotifier{Gateway: "twilio"}       <span class="cmt">// 換 SMS，呼叫端一行都不改</span>
+n.Send("訂單 #1001 已出貨")
+
+<span class="cmt">// 甚至能放進同一個 slice 一起處理：</span>
+channels := []Notifier{EmailNotifier{...}, SMSNotifier{...}}
+for _, c := range channels { c.Send("週年慶 5 折起！") }</code></pre>
+    <div class="callout analogy"><strong>類比 duck typing</strong>「如果牠走路像鴨子、叫聲像鴨子，那就當牠是鴨子。」我們不驗血統（型別），只驗行為（方法）。</div>
+
+    <h3 id="s4">4. 小介面與 <code>-er</code> 命名慣例</h3>
+    <p>Go 社群偏好<b>小介面</b>——常常只有一個方法。介面愈小，愈多型別能滿足它、愈好組合與 mock。標準庫的 <code>io.Reader</code>（只有 <code>Read</code>）、<code>io.Writer</code>（只有 <code>Write</code>）、<code>fmt.Stringer</code>（只有 <code>String</code>）都是範例。</p>
+    <table>
+      <thead><tr><th>慣例</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td>單方法介面用 <code>-er</code> 命名</td><td>方法叫 <code>Read</code> → 介面叫 <code>Reader</code>；<code>Send</code> → <code>Notifier</code>（動詞名詞化）。</td></tr>
+        <tr><td>介面要小</td><td>「一個介面該有幾個方法？」答案通常是「愈少愈好」。需要多能力時用「組合多個小介面」而不是塞一個大介面。</td></tr>
+        <tr><td>用 <code>%T</code> 看真面目</td><td>介面變數印 <code>%T</code> 會顯示底下「真正的動態型別」（如 <code>main.EmailNotifier</code>），除錯時很好用。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>慣例</strong>先別急著設計大介面。實務上常是「先有具體型別，等發現有第二種實作、或需要 mock 時，才把共同的方法抽成一個小介面」——介面是<b>需要時才長出來</b>的，不是一開始硬湊的。</div>
+  </section>
+
+  <!-- ===== 群組 B：依賴注入（sample-02-依賴注入）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 依賴注入（DI）：介面在使用方定義、實作可替換</h2>
+    <div class="maplink">對應檔案：<code>sample-02-依賴注入.go</code> ｜ 跑：<code>go run 007-介面/sample-02-依賴注入.go</code></div>
+
+    <h3 id="s5">5. 介面「在使用方定義」——這是 Go 的關鍵慣例</h3>
+    <p>電商後端常見分層：<code>service</code>（業務邏輯）需要 <code>repository</code>（資料存取）。Go 的慣例是：<b>介面定義在「用它的那一方」（consumer，這裡是 service），而不是實作那一方。</b>service 宣告「我需要能 <code>Save</code> / <code>FindByID</code> 的東西」：</p>
+    <pre><code><span class="cmt">// 定義在 service 這邊：這是 service 對「資料層」的最小需求</span>
+type OrderRepository interface {
+    Save(o Order) error
+    FindByID(id int) (Order, bool)
+}</code></pre>
+    <div class="callout key"><strong>為什麼是使用方定義</strong>因為「需要什麼能力」是<b>使用者</b>才知道的事。這樣 service 只依賴自己宣告的小介面，跟任何具體資料庫實作<b>零耦合</b>；同一個 DB 實作也能同時滿足好幾個 service 各自的小介面。這跟 Java「先定義大介面、實作去 implement」的方向剛好相反。</div>
+
+    <h3 id="s6">6. 依賴注入——service 只認介面，實作從外面塞進來</h3>
+    <p><code>OrderService</code> 的欄位型別是<b>介面</b>，不是任何具體型別。它自己<b>不 <code>new</code> 資料庫</b>，而是等外部把實作「注入」進來（慣例是用一個建構函式 <code>NewXxx</code> 收介面參數）：</p>
+    <pre><code>type OrderService struct {
+    repo OrderRepository        <span class="cmt">// 欄位是「介面」，不是具體型別</span>
+}
+
+func NewOrderService(repo OrderRepository) *OrderService {
+    return &OrderService{repo: repo}   <span class="cmt">// 依賴從參數注入</span>
+}
+
+func (s *OrderService) PlaceOrder(o Order) error {
+    if o.Amount &lt;= 0 {
+        return fmt.Errorf("金額必須大於 0，收到 %d", o.Amount)
+    }
+    return s.repo.Save(o)       <span class="cmt">// 只透過介面方法做事</span>
+}</code></pre>
+    <div class="callout analogy"><strong>類比</strong>DI 像「插座與插頭」：<code>OrderService</code> 提供一個「插座」（<code>OrderRepository</code> 介面），記憶體版、MySQL 版、測試 mock 版都是不同「插頭」，插上哪個就用哪個，插座本身（service）完全不用改。</div>
+
+    <h3 id="s7">7. 換實作——呼叫端一行都不用改</h3>
+    <p>記憶體版 repo「剛好」有 <code>Save</code>/<code>FindByID</code>，隱式滿足介面，可以直接注入。之後要換成真資料庫，<b>只改「組裝那一行」</b>，service 內部完全不動：</p>
+    <pre><code>repo := NewInMemoryOrderRepo()      <span class="cmt">// ← 未來換成 NewMySQLOrderRepo() 就好</span>
+service := NewOrderService(repo)     <span class="cmt">// service 完全不知道背後是誰</span>
+service.PlaceOrder(Order{ID: 1001, Amount: 1500})</code></pre>
+    <div class="callout conv"><strong>慣例</strong>這就是「面向介面編程」帶來的可替換性：<b>組裝（依賴接線）</b>集中在程式邊界（如 <code>main</code> 或啟動流程），<b>業務邏輯</b>只依賴介面。看電商專案時，留意「誰在 <code>main</code> 把實作接上 service」，那裡就是整個依賴圖的入口。</div>
+  </section>
+
+  <!-- ===== 群組 C：mock（sample-03-mock）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> mock：用假實作測 service、any/斷言、nil interface 陷阱</h2>
+    <div class="maplink">對應檔案：<code>sample-03-mock.go</code> ｜ 跑：<code>go run 007-介面/sample-03-mock.go</code></div>
+
+    <h3 id="s8">8. mock——為「測試」而生的假實作</h3>
+    <p>因為 service 只認介面，測試時我們可以塞一個<b>假的（mock）</b>實作，而不用真的連資料庫。mock 一樣靠「實作介面」，但它的工作是：①記錄<b>互動</b>（被呼叫幾次、傳了什麼）、②可被指定<b>故意失敗</b>（測 service 的錯誤處理）。</p>
+    <pre><code>type MockOrderRepo struct {
+    SaveCalls int       <span class="cmt">// 記錄 Save 被呼叫幾次</span>
+    LastSaved Order     <span class="cmt">// 記錄最後存了什麼</span>
+    FailWith  error     <span class="cmt">// 不為 nil 就讓 Save 回這個錯</span>
+}
+func (m *MockOrderRepo) Save(o Order) error {
+    m.SaveCalls++
+    m.LastSaved = o
+    if m.FailWith != nil { return m.FailWith }
+    return nil
+}
+
+<span class="cmt">// 用 mock 驗證「正常下單」有沒有正確呼叫 Save：</span>
+mock := &MockOrderRepo{}
+svc  := &OrderService{repo: mock}    <span class="cmt">// 注入 mock，不是真 DB</span>
+svc.PlaceOrder(Order{ID: 1001, Amount: 1500})
+<span class="cmt">// 手動「斷言」：SaveCalls 應為 1、LastSaved 應為那筆訂單</span></code></pre>
+    <div class="callout key"><strong>為什麼能這樣測</strong>正因為 <code>PlaceOrder</code> 依賴的是<b>介面</b>而非具體 DB，我們才能無痛換上 mock。「金額為 0 時 Save 應被呼叫 0 次」這種<b>互動驗證</b>，就是靠 mock 記錄次數達成——這正是主題 013 用 <code>testing</code> 套件要自動化的事，這裡先手動體會。</div>
+    <div class="callout conv"><strong>慣例：mock 用指標</strong>mock 要「記錄狀態」（次數、內容），方法得用<b>指標 receiver</b>（<code>func (m *MockOrderRepo)</code>）才改得到自己的欄位，注入時也用 <code>&MockOrderRepo{}</code>。這呼應主題 006：要改到自身狀態就用指標 receiver。</div>
+
+    <h3 id="s9">9. 補充：<code>any</code> 與型別斷言</h3>
+    <p><code>any</code> 是 <code>interface{}</code>（空介面）的別名——「沒有任何方法要求」的介面，所以<b>任何型別都滿足它</b>，可裝任意值。要從 <code>any</code> 取回具體型別，用<b>型別斷言</b>，務必用「雙回傳值」版避免 panic：</p>
+    <pre><code>var x any = "SAVE50"            <span class="cmt">// any 可裝任何東西</span>
+
+s, ok := x.(string)             <span class="cmt">// 雙回傳值：ok=true, s="SAVE50"（安全）</span>
+n, ok := x.(int)                <span class="cmt">// ok=false, n=0（不會 panic）</span>
+
+<span class="cmt">// 單回傳值版斷言失敗會 panic，少用：</span>
+<span class="cmt">// s := x.(int)   // ❌ panic: interface conversion</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong>別濫用 <code>any</code>——它等於放棄型別檢查，把錯誤延到執行期。優先用「有方法的具體介面」；只有真的要裝「任意型別」（如解析未知 JSON）才用 <code>any</code>，且斷言一律用 <code>v, ok := x.(T)</code> 兩回傳值版。（多型別分支可用 <code>switch v := x.(type)</code>，主題 012 解析 JSON 時會再遇到。）</div>
+
+    <h3 id="s10">10. 陷阱：nil interface ≠ nil</h3>
+    <p>Go 面試最愛考、實務也最容易中的雷。介面值內部其實有<b>兩格</b>：<code>(型別, 值)</code>。<b>只有兩格都空</b>時，介面才等於 <code>nil</code>。把一個「型別已知、但值為 nil 的指標」塞進介面，介面就<b>不是 nil</b> 了：</p>
+    <pre><code>var repo OrderRepository        <span class="cmt">// 型別、值都空 → 真正的 nil</span>
+fmt.Println(repo == nil)        <span class="cmt">// true</span>
+
+var p *MockOrderRepo = nil      <span class="cmt">// 一個「值為 nil」的具體指標</span>
+repo = p                        <span class="cmt">// 介面現在帶著型別 *MockOrderRepo、值 nil</span>
+fmt.Println(repo == nil)        <span class="cmt">// false ！（型別那格不空）</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong>最常見的翻車場景：函式回傳型別寫成介面（如 <code>error</code>），內部卻 <code>return</code> 一個「值為 nil 的具體指標」，外面 <code>if err != nil</code> 就會<b>誤判成有錯</b>。心法：<b>要回 nil 介面，就直接 <code>return nil</code></b>，別回一個 nil 的具體指標再讓它被裝進介面。（008 錯誤處理會再提醒這點。）</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-介面基礎.go</code></td><td>定義 <code>PaymentMethod</code> 介面，寫 <code>CreditCard</code>、<code>CashOnDelivery</code> 兩個實作（隱式實作、duck typing）</td><td>印「信用卡(末四碼 4242) 付款 <code>1500</code> 元」與「貨到付款 <code>1500</code> 元」兩行</td></tr>
+        <tr><td><code>homework-02-依賴注入.go</code></td><td>幫給定的 <code>ProductRepository</code> 介面寫一個假實作 <code>FakeProductRepo</code>，注入後查商品</td><td>查 id=1 印「找到：鍵盤」；查 id=99 印「查無此商品」</td></tr>
+        <tr><td><code>homework-03-mock.go</code></td><td>寫 <code>MockNotifier</code> 注入 <code>SignupService</code>，驗證註冊後有沒有真的發通知</td><td>印「Send 被呼叫 <code>1</code> 次」與「內容：歡迎加入，小明！」</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 007-介面/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>宣告一個型別「實作某介面」</td><td><b>什麼都不用寫</b>——方法簽章對上就自動滿足（隱式實作）。沒有 <code>implements</code>。</td></tr>
+        <tr><td>想在編譯期確認有實作到</td><td>加一行 <code>var _ Notifier = EmailNotifier{}</code>，沒實作完就編譯失敗。</td></tr>
+        <tr><td>介面該多大</td><td><b>愈小愈好</b>，常是單方法；單方法介面用 <code>-er</code> 命名（<code>Reader</code>/<code>Notifier</code>）。</td></tr>
+        <tr><td>介面定義在哪一邊</td><td>定義在<b>使用方（consumer）</b>——service 宣告它需要的 repository 介面，不是實作那邊。</td></tr>
+        <tr><td>service 依賴資料層</td><td>欄位型別用<b>介面</b>、實作用 <code>NewXxx(dep 介面)</code> <b>注入</b>；service 不自己 <code>new</code> 具體型別。</td></tr>
+        <tr><td>要換實作（DB↔記憶體↔mock）</td><td>只改「組裝那一行」，service 內部不動——這就是 DI 的好處。</td></tr>
+        <tr><td>測 service 又不想連 DB</td><td>注入 <b>mock</b>（實作同一介面、記錄互動 / 可注入錯誤）；mock 要記狀態 → 用<b>指標 receiver</b>。</td></tr>
+        <tr><td>要裝「任意型別」</td><td>用 <code>any</code>（即 <code>interface{}</code>）；取回具體型別用 <code>v, ok := x.(T)</code> <b>兩回傳值版</b>（別用會 panic 的單值版）。</td></tr>
+        <tr><td>判斷介面是不是 nil</td><td><b>nil interface ≠ nil</b>：裝了「nil 的具體指標」的介面 <code>!= nil</code>。要回空介面就直接 <code>return nil</code>，別回 nil 的具體指標。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 007 · 介面 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

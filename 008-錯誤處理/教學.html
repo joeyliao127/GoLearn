@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--
+  主題 008 · 錯誤處理 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>008 · 錯誤處理</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 008 · 錯誤處理</h1>
+    <p>Go <b>沒有 try/catch</b>——error 是一個「回傳值」，用 <code>if err != nil</code> 早早處理掉。學會回傳/包裝/比對錯誤，以及 panic/recover 的少數時機，就能讀懂電商 repo 裡結帳、庫存、金流那一長串 <code>return ..., err</code> 到底在做什麼。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 error 是值</a>
+    <a href="#s2">2 建立錯誤</a>
+    <a href="#s3">3 早 return</a>
+    <a href="#s4">4 %w 包裝</a>
+    <a href="#s5">5 == 會失手</a>
+    <a href="#s6">6 errors.Is</a>
+    <a href="#s7">7 sentinel</a>
+    <a href="#s8">8 自訂型別</a>
+    <a href="#s9">9 errors.As</a>
+    <a href="#s10">10 panic 時機</a>
+    <a href="#s11">11 recover</a>
+    <a href="#s12">12 少用慣例</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((008 錯誤處理))
+    error 基礎
+      沒有 try/catch
+      error 是值 nil=沒事
+      值,error 慣例
+      if err != nil 早 return
+      errors.New / fmt.Errorf
+    包裝與 Is
+      fmt.Errorf 用 %w 包裝
+      包裝後別再用 ==
+      errors.Is 穿透比對
+      errors.Unwrap 剝一層
+    sentinel 與自訂
+      var ErrXxx sentinel
+      struct 實作 Error()
+      errors.As 挖出型別
+      Is 比值 / As 拿資料
+    panic 與 recover
+      panic 只給真正異常
+      recover 只在 defer 有效
+      降級成 error
+      可預期失敗回 error
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>Go 為什麼<b>沒有 try/catch</b>、怎麼把錯誤當「值」回傳與判斷（<code>if err != nil</code>）、用 <code>%w</code> 包裝與 <code>errors.Is</code>/<code>errors.As</code> 比對、sentinel 與自訂 error 型別，最後是 <code>panic</code>/<code>recover</code> 的少數正當時機。四個 sample 各對應一組概念。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每個群組標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：error 基礎（sample-01-error基礎）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> error 基礎：error 是值、(值, error) 慣例、早 return</h2>
+    <div class="maplink">對應檔案：<code>sample-01-error基礎.go</code> ｜ 跑：<code>go run 008-錯誤處理/sample-01-error基礎.go</code></div>
+
+    <h3 id="s1">1. Go 沒有 try/catch —— error 就是一個「值」</h3>
+    <p>別的語言遇到錯誤是「丟例外」（<code>throw</code> / <code>try...catch</code>）；Go 完全不這樣。Go 把錯誤設計成一個<b>普通的回傳值</b>，型別是內建的 <code>error</code> 介面。函式覺得出事了，就「多回傳一個 error 給你」，由你決定怎麼辦。</p>
+    <p>慣例：<b>error 放在回傳值的最後一個</b>，長相固定是 <code>func f(...) (結果, error)</code>。<code>error</code> 是 <code>nil</code> 代表「沒事」；非 <code>nil</code> 代表「出事了，內容看這個錯誤」。</p>
+    <pre><code>func withdraw(balance, amount int) (int, error) {
+    <span class="cmt">// ...檢查...</span>
+    return balance - amount, nil   <span class="cmt">// 成功：error 位置給 nil</span>
+}</code></pre>
+    <div class="callout key"><strong>心法反轉</strong>在 Go，錯誤不是「意外的中斷」，而是<b>資料流的一部分</b>。你會一直看到 <code>x, err := f()</code>——把「結果」和「可能的錯誤」一起接回來，這是整個 Go 生態的地基。</div>
+
+    <h3 id="s2">2. 建立錯誤：<code>errors.New</code> vs <code>fmt.Errorf</code></h3>
+    <p>兩種常見做法，差別只在「訊息要不要塞變數」：</p>
+    <table>
+      <thead><tr><th>用哪個</th><th>時機</th><th>例子</th></tr></thead>
+      <tbody>
+        <tr><td><code>errors.New("...")</code></td><td>訊息是<b>固定字串</b></td><td><code>errors.New("扣款金額必須大於 0")</code></td></tr>
+        <tr><td><code>fmt.Errorf("...", ...)</code></td><td>訊息要<b>帶變數</b>（像 Printf）</td><td><code>fmt.Errorf("餘額不足：欲扣 %d，只有 %d", a, b)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>訊息慣例</strong>錯誤字串<b>小寫開頭、結尾不加標點</b>（如 <code>"庫存不足"</code> 不是 <code>"庫存不足。"</code>）。原因：錯誤常被「串起來」印出（<code>結帳失敗: 庫存不足</code>），大寫或句點接起來會很醜。</div>
+
+    <h3 id="s3">3. 呼叫方慣例：<code>if err != nil</code> 早 return</h3>
+    <p>拿到 <code>(值, err)</code> 後，<b>先檢查 err</b>：有問題就立刻收尾（回傳、記 log、結束），正常邏輯留在後面。這叫 <b>early return（早 return）</b>——把錯誤路徑先擋掉，主線就能平鋪直敘、不必一路往右縮排。</p>
+    <pre><code>newBalance, err := withdraw(balance, 300)
+if err != nil {
+    fmt.Println("扣款失敗：", err)
+    return                 <span class="cmt">// 錯了就早早收尾</span>
+}
+<span class="cmt">// 走到這裡，保證成功，安心用 newBalance</span>
+fmt.Printf("餘額 %d 元\n", newBalance)</code></pre>
+    <div class="callout analogy"><strong>類比</strong>像過安檢：不合格的當場攔下請回（early return），後面走廊只剩「已通過」的人，動線清爽。若改成「層層 else 巢狀」，就像把所有人塞進一條不斷分岔的隊伍，越讀越縮排、越難跟。</div>
+    <div class="callout trap"><strong>陷阱：別吞錯</strong>最忌 <code>x, _ := f()</code> 把 err 用 <code>_</code> 丟掉、假裝沒事——出錯時你會完全不知情，還拿著半殘的值繼續跑。除非你<b>真的確定</b>不可能錯，否則每個 err 都要處理（至少往上回傳）。</div>
+  </section>
+
+  <!-- ===== 群組 B：包裝與 Is（sample-02-包裝與Is）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> 包裝與比對：<code>%w</code> 包裝、<code>errors.Is</code></h2>
+    <div class="maplink">對應檔案：<code>sample-02-包裝與Is.go</code> ｜ 跑：<code>go run 008-錯誤處理/sample-02-包裝與Is.go</code></div>
+
+    <h3 id="s4">4. 用 <code>%w</code> 包裝：補上下文，又不丟掉原始錯誤</h3>
+    <p>錯誤往上傳時，常想順手加一句「是誰、在哪出事」。<code>fmt.Errorf</code> 有個特別的動詞 <code>%w</code>（wrap，包裝）：它把原始 err <b>藏進</b>新錯誤裡，之後還挖得出來。</p>
+    <pre><code>if err := checkStock(productID, qty); err != nil {
+    return fmt.Errorf("訂單 %s 建立失敗: %w", orderID, err)
+    <span class="cmt">//                               ^^ 用 %w 把 err 包進去</span>
+}</code></pre>
+    <div class="callout key"><strong>%w 和 %v 差在哪</strong><code>%v</code> 只是把錯誤的<b>文字</b>拼進去，原始錯誤的「身分」就斷了；<code>%w</code> 會保留那條「錯誤鏈」，讓下面第 6 節的 <code>errors.Is</code>／第 9 節的 <code>errors.As</code> 還能穿透比對。想被 Is/As 認出來，就得用 <code>%w</code>。</div>
+
+    <h3 id="s5">5. 包裝後：別再用 <code>==</code> 比對</h3>
+    <p>一旦包過，錯誤就換了一層「外皮」，直接 <code>err == ErrOutOfStock</code> 會是 <code>false</code>（比的是最外層那顆，不是裡面包的）：</p>
+    <pre><code>err := placeOrder("ORD-0001", "B200", 2)   <span class="cmt">// 內部缺貨，被包了一層</span>
+fmt.Println(err == ErrOutOfStock)          <span class="cmt">// false！比的是外皮</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong>看到「用 <code>==</code> 比對錯誤卻老是不成立」，八成是對方被 <code>%w</code> 包過了。解法不是拆包裝，而是改用 <code>errors.Is</code>（見下）。</div>
+
+    <h3 id="s6">6. <code>errors.Is</code>：穿透整條鏈比對「是不是某個錯誤」</h3>
+    <p><code>errors.Is(err, 目標)</code> 會沿著 <code>%w</code> 一層層往裡剝，只要<b>鏈上任一層</b>等於目標就回 <code>true</code>。這才是比對 sentinel error 的正解：</p>
+    <pre><code>if errors.Is(err, ErrOutOfStock) {
+    <span class="cmt">// 不管被包了幾層，只要底下是缺貨就進來</span>
+    fmt.Println("顯示『到貨通知我』按鈕")
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>比對錯誤「是不是某個已知值」，一律用 <code>errors.Is</code>，<b>不要用 <code>==</code></b>——因為你永遠不知道中間會不會有人包了一層。（想手動剝一層看裡面是誰，可以用 <code>errors.Unwrap</code>，但實務多半直接 Is。）</div>
+  </section>
+
+  <!-- ===== 群組 C：sentinel 與自訂型別（sample-03-sentinel與自訂）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> sentinel 與自訂型別：<code>ErrXxx</code>、自訂 error、<code>errors.As</code></h2>
+    <div class="maplink">對應檔案：<code>sample-03-sentinel與自訂.go</code> ｜ 跑：<code>go run 008-錯誤處理/sample-03-sentinel與自訂.go</code></div>
+
+    <h3 id="s7">7. sentinel error：可被比對的「固定錯誤值」</h3>
+    <p>當一個錯誤「只需要被認出來，不必夾帶額外資料」（例如「付款被拒」就是有或沒有），就用 <b>sentinel error</b>：一個套件層級變數，慣例名字 <code>ErrXxx</code>，用 <code>errors.New</code> 建立。</p>
+    <pre><code>var ErrOutOfStock     = errors.New("庫存不足")
+var ErrPaymentDeclined = errors.New("付款被拒")</code></pre>
+    <div class="callout conv"><strong>慣例</strong>錯誤變數一律 <code>Err</code> 開頭大駝峰（<code>ErrNotFound</code>）。標準庫也一樣：<code>io.EOF</code>、<code>sql.ErrNoRows</code>、<code>fs.ErrNotExist</code>——你在電商 repo 裡會常常 <code>errors.Is(err, sql.ErrNoRows)</code> 判斷「查無資料」。</div>
+
+    <h3 id="s8">8. 自訂 error 型別：需要「夾帶資料」時</h3>
+    <p>固定字串不夠用時（例如想告訴呼叫方「找不到的是<b>哪種資源、哪個 ID</b>」），就自訂一個 error 型別：一個 <code>struct</code>，<b>實作 <code>Error() string</code> 方法</b>就自動是合法的 error（<code>error</code> 是介面，隱式實作、不用寫 <code>implements</code>）。</p>
+    <pre><code>type NotFoundError struct {
+    Resource string   <span class="cmt">// 帶資料：是哪種資源</span>
+    ID       string   <span class="cmt">// 帶資料：哪個 ID</span>
+}
+func (e *NotFoundError) Error() string {
+    return fmt.Sprintf("找不到%s：%s", e.Resource, e.ID)
+}</code></pre>
+    <div class="callout analogy"><strong>類比</strong>sentinel 像「缺貨」這張<b>現成的號碼牌</b>——大家比對同一張；自訂 error 型別像一張<b>可填欄位的表單</b>，能寫上「缺的是哪個商品、缺幾個」，資訊量大得多。</div>
+
+    <h3 id="s9">9. <code>errors.As</code>：把「某個型別」從鏈裡挖出來</h3>
+    <p><code>errors.Is</code> 回答「<b>是不是</b>某個值」；<code>errors.As</code> 回答「鏈上<b>有沒有</b>某個型別，有就把它<b>還原</b>成具體型別給我」——這樣才能讀它的欄位。用法：宣告一個目標指標變數，把它的<b>位址</b>（<code>&nfErr</code>）交給 <code>As</code>。</p>
+    <pre><code>var nfErr *NotFoundError
+if errors.As(err, &nfErr) {          <span class="cmt">// 注意傳的是 &nfErr（位址）</span>
+    fmt.Println(nfErr.Resource, nfErr.ID)   <span class="cmt">// 還原成型別，讀欄位</span>
+}</code></pre>
+    <div class="callout key"><strong>一句話分工</strong><code>errors.Is</code> ＝「這是不是<b>那顆</b>（sentinel）？」；<code>errors.As</code> ＝「鏈裡有沒有<b>那種</b>（型別），撈出來讓我讀細節」。兩者都會穿透 <code>%w</code> 包裝。</div>
+    <div class="callout trap"><strong>陷阱：<code>As</code> 的第二參數一定是「指標的位址」</strong>要傳 <code>&nfErr</code>（<code>nfErr</code> 本身是 <code>*NotFoundError</code>，取址後是 <code>**NotFoundError</code>）。傳錯（例如只給 <code>nfErr</code>）會直接 panic。記法：<code>As</code> 要「寫進」你的變數，所以得給它變數的位址。</div>
+  </section>
+
+  <!-- ===== 群組 D：panic 與 recover（sample-04-panic與recover）===== -->
+  <section class="topic">
+    <h2><span class="tag">D</span> panic 與 recover：少用的最後手段</h2>
+    <div class="maplink">對應檔案：<code>sample-04-panic與recover.go</code> ｜ 跑：<code>go run 008-錯誤處理/sample-04-panic與recover.go</code></div>
+
+    <h3 id="s10">10. <code>panic</code> 的時機：真正的異常，不是一般錯誤流程</h3>
+    <p><code>panic</code> 會<b>中斷正常流程、一路往上炸</b>，沿途執行各層的 <code>defer</code>，若沒人攔就<b>整個程式崩潰</b>。它只該用在「<b>這根本不該發生</b>」的情況——程式的不變式被打破、或初始化時就掛（設定檔壞、必要環境變數缺）。</p>
+    <pre><code>func divShare(amount, n int) int {
+    if n == 0 {
+        panic("divShare: 人數不可為 0（呼叫端邏輯有誤）")
+    }
+    return amount / n
+}</code></pre>
+    <div class="callout key"><strong>判斷準則</strong>「可預期、會發生的失敗」（缺貨、餘額不足、查無資料、使用者輸入錯）→ <b>回 error</b>；「照理說絕不會發生、發生就是 bug」→ 才考慮 <code>panic</code>。日常業務邏輯裡，你寫 <code>panic</code> 的次數應該<b>接近零</b>。</div>
+
+    <h3 id="s11">11. <code>recover</code>：只有在 <code>defer</code> 裡才有效</h3>
+    <p><code>recover()</code> 能<b>攔住 panic</b>、阻止程式崩潰，但它<b>只有寫在 <code>defer</code> 的函式裡</b>才作用（正常結束時 <code>recover()</code> 回 <code>nil</code>；發生 panic 時回 panic 的值）。常見用法是把 panic「<b>降級</b>」成一個普通 error 回傳：</p>
+    <pre><code>func settleOne(orderID string, amount, n int) (err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            err = fmt.Errorf("結算 %s 發生嚴重錯誤: %v", orderID, r)
+        }
+    }()
+    share := divShare(amount, n)   <span class="cmt">// 這裡 panic 會被上面 defer 接住</span>
+    <span class="cmt">// ...</span>
+    return nil
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>用 <code>recover</code> 的地方通常搭配<b>具名回傳值</b>（<code>(err error)</code>），才能在 defer 裡把攔到的東西塞回 <code>err</code>。真實世界最常見在「每個 request 一層 middleware」攔住 handler 的意外 panic，讓伺服器回 500 而不是整個掛掉、拖垮其他請求。</div>
+
+    <h3 id="s12">12. 少用慣例：能回 error 就別 panic</h3>
+    <p>把上面兩節收成一句：<b>對外的 API、日常業務邏輯，一律用 error；panic/recover 是最後手段。</b>濫用 panic 當「跨函式的 try/catch」是反模式——會讓錯誤流程變得不可預測、難以追蹤。</p>
+    <div class="callout analogy"><strong>類比</strong><code>panic</code> 像<b>拉火災警報器</b>：真失火（不變式崩了）才拉；不會因為「找不到某商品」這種日常小事就拉警報、疏散整棟樓。日常的「東西沒找到」，好好回一個 error 就夠了。</div>
+    <div class="callout trap"><strong>陷阱：別把 recover 當萬用 try/catch</strong>看到有人到處 <code>defer recover()</code> 把所有 panic 悶掉、當一般錯誤處理，要警覺——這會把「真正的 bug」也一起吞掉、藏起問題。recover 只該攔「你預期可能 panic 的那一小段」，攔完要嘛降級成 error、要嘛記 log 後重新 panic。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-error基礎.go</code></td><td>寫 <code>withdraw</code> 回傳 <code>(int, error)</code>，餘額不足時回錯誤，呼叫方 <code>if err != nil</code> 早 return</td><td><code>withdraw(1000,1500)</code> 走錯誤分支；改成 <code>(1000,300)</code> 印「餘額 <code>700</code> 元」</td></tr>
+        <tr><td><code>homework-02-包裝與Is.go</code></td><td>在 <code>checkout</code> 用 <code>fmt.Errorf("...: %w", err)</code> 包裝，再用 <code>errors.Is</code> 認出過期券</td><td>完整訊息含「結帳失敗: 折價券已過期」，且 <code>errors.Is</code> 為 <code>true</code>（印換券提示）</td></tr>
+        <tr><td><code>homework-03-sentinel與自訂.go</code></td><td>自己宣告 sentinel <code>ErrProductNotFound</code>，查不到就回傳它，呼叫方用 <code>errors.Is</code> 判斷</td><td>查 <code>"NOPE"</code> → <code>errors.Is</code> 為 <code>true</code>、印「查無此商品」；查 <code>"A100"</code> → 印「價格 <code>299</code> 元」</td></tr>
+        <tr><td><code>homework-04-panic與recover.go</code></td><td>在 <code>safePrintLabel</code> 用 <code>defer</code>+<code>recover</code> 攔住 nil 指標的 panic，再把 <code>ready</code> 改成 <code>true</code></td><td>程式<b>不崩潰</b>；依序印「已攔截 panic：…」與「主程式繼續執行」</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 008-錯誤處理/homework-01-error基礎.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>函式可能出錯</td><td>回傳 <code>(結果, error)</code>，<b>error 放最後</b>；成功時 error 給 <code>nil</code></td></tr>
+        <tr><td>呼叫可能出錯的函式</td><td><code>x, err := f()</code> 後<b>立刻 <code>if err != nil</code></b>，出錯早 return；正常路徑不縮排</td></tr>
+        <tr><td>絕不要做的事</td><td>別用 <code>x, _ := f()</code> <b>吞掉錯誤</b>（除非真的確定不可能錯）</td></tr>
+        <tr><td>建立錯誤</td><td>固定字串 <code>errors.New(...)</code>；要帶變數 <code>fmt.Errorf(...)</code>；訊息<b>小寫開頭、不加句點</b></td></tr>
+        <tr><td>錯誤往上傳、想加上下文</td><td><code>fmt.Errorf("脈絡: %w", err)</code>——用 <code>%w</code>（不是 <code>%v</code>）才能被 Is/As 穿透</td></tr>
+        <tr><td>比對「是不是某個已知錯誤」</td><td><b>用 <code>errors.Is(err, ErrXxx)</code></b>，不要用 <code>==</code>（可能被 <code>%w</code> 包過）</td></tr>
+        <tr><td>需要讀錯誤的欄位/細節</td><td>自訂 error 型別（<code>struct</code> + <code>Error() string</code>）＋ <code>errors.As(err, &amp;target)</code>（傳<b>位址</b>）</td></tr>
+        <tr><td>固定、不帶資料的錯誤</td><td>sentinel：<code>var ErrXxx = errors.New(...)</code>（<code>Err</code> 開頭大駝峰，如 <code>sql.ErrNoRows</code>）</td></tr>
+        <tr><td>可預期的失敗（缺貨/餘額不足/查無）</td><td><b>回 error</b>，不要 <code>panic</code></td></tr>
+        <tr><td>真正異常（不變式被打破、該發生的沒發生）</td><td>才用 <code>panic</code>；要攔就 <code>defer</code> 裡 <code>recover()</code>，通常降級成 error（配具名回傳值）</td></tr>
+        <tr><td>看到到處 <code>defer recover()</code> 悶掉所有 panic</td><td>反模式——會吞掉真 bug；recover 只攔預期那一小段，攔完降級或記 log 後 re-panic</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 008 · 錯誤處理 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--
+  主題 006 · 指標 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>006 · 指標</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 006 · 指標</h1>
+    <p>Go 永遠「傳值」，想在函式或方法裡改到本尊就得傳指標 —— 讀懂電商 code 為什麼有的地方用 <code>*Order</code>、有的用 <code>Order</code>，以及 <code>new</code> / <code>make</code> 何時用哪個。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 傳值心法</a>
+    <a href="#s2">2 傳指標</a>
+    <a href="#s3">3 三符號</a>
+    <a href="#s4">4 指標也是傳值</a>
+    <a href="#s5">5 pointer receiver</a>
+    <a href="#s6">6 value receiver</a>
+    <a href="#s7">7 range 副本</a>
+    <a href="#s8">8 new</a>
+    <a href="#s9">9 &amp;T{}</a>
+    <a href="#s10">10 make</a>
+    <a href="#s11">11 nil map</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((006 指標))
+    傳值與指標
+      Go 永遠傳值 copy
+      傳指標才改得到本尊
+      *T 型別 / &x 取地址 / *p 解參考
+      傳指標也是傳值 copy 的是地址
+    pointer receiver
+      要改自身用 *T
+      唯讀用 value receiver
+      全值或全指標別混
+      range 元素是副本
+    new 與 make
+      new(T) 回指標
+      struct 慣用 &T{}
+      make 給 slice/map/chan
+      nil map 讀 OK 寫 panic
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>Go 為什麼「永遠傳值」、想改到本尊為什麼要傳<b>指標</b>、三個符號 <code>*T</code> / <code>&amp;x</code> / <code>*p</code> 各是什麼，還有方法的 receiver 該用值還是指標、<code>new</code> 和 <code>make</code> 差在哪。三個 sample 各對應一組概念，邊讀邊跑。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。本主題接續 005（struct 與方法），把「receiver 用值還是指標」補齊。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：傳值與指標（sample-01-傳值與指標）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 傳值 vs 指標：誰改得到本尊？</h2>
+    <div class="maplink">對應檔案：<code>sample-01-傳值與指標.go</code> ｜ 跑：<code>go run 006-指標/sample-01-傳值與指標.go</code></div>
+
+    <div class="callout key"><strong>整個主題的核心一句話</strong>Go <b>永遠是「傳值（pass by value）」</b>——傳進函式的都是一份 <b>copy</b>。想改到呼叫端的本尊，就把「地址」傳進去，讓兩邊指向同一塊記憶體。</div>
+
+    <h3 id="s1">1. 傳值心法：函式收到的是「一份 copy」</h3>
+    <p>把一個 <code>Order</code> 傳進函式，函式收到的 <code>o</code> 只是<b>複製品</b>。函式裡怎麼改 <code>o</code>，都只動到 copy；函式 <code>return</code> 後 copy 被丟掉，原本的訂單毫髮無傷。</p>
+    <pre><code>func addItemByValue(o Order, p Product) {
+    o.Items = append(o.Items, p)   <span class="cmt">// 改的是 copy</span>
+    o.Status = "updated"
+}
+<span class="cmt">// 呼叫端：orderA 完全沒變，件數還是 0</span>
+addItemByValue(orderA, keyboard)</code></pre>
+    <div class="callout analogy"><strong>類比</strong>像把「文件影印一份」交給同事改。他在<b>影本</b>上塗改得再認真，你手上的<b>正本</b>一個字都不會變。要他改到正本，你得把正本的「所在位置（地址）」告訴他。</div>
+
+    <h3 id="s2">2. 傳指標：用 <code>&amp;</code> 取地址，函式透過地址寫回本尊</h3>
+    <p>把參數型別改成 <code>*Order</code>（指向 Order 的指標），呼叫時用 <code>&amp;</code> 取地址傳進去。函式透過這個地址寫入，動到的就是<b>本尊</b>。</p>
+    <pre><code>func addItemByPointer(o *Order, p Product) {
+    o.Items = append(o.Items, p)   <span class="cmt">// o.Items 是 (*o).Items 的縮寫</span>
+    o.Status = "updated"
+}
+addItemByPointer(&amp;orderB, keyboard)   <span class="cmt">// & 取地址 → orderB 真的被改</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>對指標取欄位可<b>直接寫 <code>o.Items</code></b>，不用寫成 <code>(*o).Items</code>——Go 會自動幫你解參考(dereference)。這就是為什麼電商 code 裡 <code>*Order</code> 的方法裡到處是 <code>o.欄位</code>，看起來和值一樣。</div>
+
+    <h3 id="s3">3. 三個符號速記：<code>*T</code> 型別、<code>&amp;x</code> 取地址、<code>*p</code> 解參考</h3>
+    <p>指標只有三個符號，別被 <code>*</code> 一符兩用搞混——看它出現在哪：</p>
+    <table>
+      <thead><tr><th>符號</th><th>出現位置</th><th>意思</th></tr></thead>
+      <tbody>
+        <tr><td><code>*T</code></td><td>型別位置，如 <code>var p *int</code></td><td>「指向 T 的指標」這個<b>型別</b></td></tr>
+        <tr><td><code>&amp;x</code></td><td>值前面，如 <code>&amp;price</code></td><td>取變數 x 的<b>地址</b>（得到一個指標）</td></tr>
+        <tr><td><code>*p</code></td><td>指標前面，如 <code>*p = 250</code></td><td><b>解參考</b>：透過指標讀/寫它指向的本尊</td></tr>
+      </tbody>
+    </table>
+    <pre><code>price := 100
+var p *int = &amp;price   <span class="cmt">// *int 是型別；&price 取地址</span>
+fmt.Println(*p)        <span class="cmt">// *p 解參考，讀出 100</span>
+*p = 250               <span class="cmt">// *p 解參考，寫回本尊 → price 變 250</span></code></pre>
+
+    <h3 id="s4">4. 「傳指標」其實也是傳值：copy 的是「地址」</h3>
+    <p>別把指標理解成「就不 copy 了」。指標本身也是一個值（一串地址數字），傳進函式一樣被<b>複製一份</b>；只是這份 copy 和原指標<b>指向同一塊記憶體</b>，所以透過它寫入才動得到本尊。sample 裡印出「函式內收到的地址」和「外面的地址」完全一樣，就是證明。</p>
+    <div class="callout key"><strong>為什麼要懂這個</strong>因為它解釋了一個常見疑惑：既然傳指標也 copy，為什麼就改得到？<b>因為 copy 的是「地址」不是「資料」</b>——兩份地址指向同一筆訂單。這也預告了主題 010 併發：多個地方共享同一塊記憶體，才需要 Mutex 保護。</div>
+  </section>
+
+  <!-- ===== 群組 B：pointer receiver（sample-02-pointer接收者）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> pointer receiver：方法要改到自己就用 <code>*T</code></h2>
+    <div class="maplink">對應檔案：<code>sample-02-pointer接收者.go</code> ｜ 跑：<code>go run 006-指標/sample-02-pointer接收者.go</code></div>
+    <p>這是主題 005「方法 / receiver」的續集：現在補上「receiver 該用值 <code>(o Order)</code> 還是指標 <code>(o *Order)</code>」。判斷法則其實就是第 1~2 節的心法搬到方法上。</p>
+
+    <h3 id="s5">5. 要「改到自身」的方法 → pointer receiver <code>(o *Order)</code></h3>
+    <p>方法本質上也是「把 receiver 當參數傳進去」。所以 value receiver 收到的是<b>訂單的 copy</b>，改了白改；要真的改到訂單，receiver 得寫成 <code>*Order</code>。</p>
+    <pre><code>func (o *Order) ApplyDiscount(percent int) {
+    for i := range o.Items {
+        o.Items[i].Price = o.Items[i].Price * (100 - percent) / 100
+    }
+}
+func (o *Order) AddItem(p Product) { o.Items = append(o.Items, p) }</code></pre>
+    <div class="callout conv"><strong>Go 的貼心</strong>對「可定址(addressable)」的變數（例如一般區域變數 <code>order</code>）呼叫指標方法時，Go 會<b>自動幫你取地址</b>：<code>order.ApplyDiscount()</code> 等於 <code>(&amp;order).ApplyDiscount()</code>。所以你不用每次都手動寫 <code>&amp;</code>，用起來和值方法一樣自然。</div>
+
+    <h3 id="s6">6. 只「讀」不「改」→ value receiver <code>(o Order)</code></h3>
+    <p><code>Total()</code> 只是加總、不動任何欄位，用 value receiver 就好——語意清楚（「我保證不改你」）、也不怕 nil。</p>
+    <pre><code>func (o Order) Total() int {
+    sum := 0
+    for _, item := range o.Items { sum += item.Price }
+    return sum
+}</code></pre>
+    <div class="callout trap"><strong>陷阱：別混用</strong>同一個型別的方法，慣例是<b>「全值」或「全指標」二選一，不要混</b>。混用會讓「這型別到底能不能被指標方法改」變得混亂，也可能踩到「值 vs 指標」是否滿足介面的雷（主題 007 會遇到）。實務上只要有<b>任何一個</b>方法需要改自身，就<b>全部</b>用 pointer receiver。</p></div>
+
+    <h3 id="s7">7. 陷阱回顧：<code>range</code> 的元素是「副本」，直接改沒用</h3>
+    <p>這點在主題 004 提過，這裡用「值/指標」再解釋一次<b>為什麼</b>：<code>for _, item := range o.Items</code> 每輪的 <code>item</code> 是元素的<b>copy</b>，改 <code>item.Price</code> 只動到 copy。要改原值，得用<b>索引</b>直接寫回 slice：</p>
+    <pre><code><span class="cmt">// ❌ 白改：item 是副本</span>
+for _, item := range o.Items { item.Price = 0 }
+
+<span class="cmt">// ✅ 用索引改到本尊</span>
+for i := range o.Items { o.Items[i].Price = 0 }</code></pre>
+    <div class="callout key"><strong>一句話收</strong><code>range</code> 給的是副本 → 要改原值就用 <code>xs[i]</code> 索引寫回。這和第 1 節「傳值改不到本尊」是同一個道理的不同長相。</div>
+  </section>
+
+  <!-- ===== 群組 C：new 與 make（sample-03-new與make）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> new 與 make：兩種「配置記憶體」的內建函式</h2>
+    <div class="maplink">對應檔案：<code>sample-03-new與make.go</code> ｜ 跑：<code>go run 006-指標/sample-03-new與make.go</code></div>
+    <p>Go 有兩個內建函式在「配置記憶體」，新手常搞混。一句話分：<b><code>new</code> 回指標、<code>make</code> 回本體；而且 <code>make</code> 只給 slice / map / channel 用。</b></p>
+
+    <h3 id="s8">8. <code>new(T)</code>：配置一塊「零值」記憶體，回傳 <code>*T</code></h3>
+    <p><code>new(Product)</code> 配置一個<b>零值</b>的 Product（<code>{Name:"", Price:0}</code>），回傳指向它的指標 <code>*Product</code>。任何型別都能 <code>new</code>。</p>
+    <pre><code>p1 := new(Product)   <span class="cmt">// p1 是 *Product，指向零值</span>
+p1.Name = "4K 螢幕"   <span class="cmt">// p1.Name 是 (*p1).Name 的縮寫</span>
+p1.Price = 8990</code></pre>
+
+    <h3 id="s9">9. struct 慣例：直接用 <code>&amp;T{...}</code>（幾乎取代 new）</h3>
+    <p><code>&amp;Product{...}</code> 一樣拿到 <code>*Product</code>，但能<b>一行帶初值</b>，所以 Go 程式裡<b>幾乎都用 <code>&amp;T{}</code>、很少寫 <code>new</code></b>。兩者拿到的東西型別相同。</p>
+    <pre><code>p2 := &amp;Product{Name: "喇叭", Price: 1200}   <span class="cmt">// 型別也是 *Product，還能給初值</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>建 struct 用 <code>&amp;T{...}</code>；<code>new</code> 在真實 Go code 幾乎見不到（頂多用在「想要一個某型別的零值指標、又沒有欄位要填」的少數場合）。看到別人寫 <code>&amp;Order{}</code> 就是這裡的正解。</div>
+
+    <h3 id="s10">10. <code>make</code>：只給 slice / map / channel，回傳「本體」不是指標</h3>
+    <p><code>make</code> 專門用來建<b>需要初始化內部結構</b>的三種型別：slice、map、channel。它回傳的是<b>可以直接用的本體</b>（不是指標）。</p>
+    <pre><code>cart  := make([]Product, 0, 4)   <span class="cmt">// slice：len=0, 預留 cap=4</span>
+stock := make(map[string]int)    <span class="cmt">// map：建好才能寫入</span></code></pre>
+    <table>
+      <thead><tr><th></th><th>用在</th><th>回傳</th><th>典型寫法</th></tr></thead>
+      <tbody>
+        <tr><td><code>new(T)</code></td><td>任何型別</td><td><code>*T</code>（指標）</td><td>少用；struct 改用 <code>&amp;T{}</code></td></tr>
+        <tr><td><code>&amp;T{}</code></td><td>struct</td><td><code>*T</code>（指標）</td><td><code>&amp;Order{ID: 1}</code></td></tr>
+        <tr><td><code>make</code></td><td>slice / map / channel</td><td><b>本體</b>（非指標）</td><td><code>make(map[string]int)</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="s11">11. 陷阱：<code>nil</code> map「讀」可以、「寫」會 panic</h3>
+    <p>只宣告沒 <code>make</code> 的 map 是 <code>nil</code>（呼應主題 004）。<b>讀 nil map 不會炸</b>（回零值），但<b>寫入會 panic</b>。所以要寫入前一定先 <code>make</code>（或用字面值 <code>map[string]int{}</code>）。</p>
+    <pre><code>var priceTable map[string]int      <span class="cmt">// nil map</span>
+_ = priceTable["不存在"]            <span class="cmt">// 讀 OK，得到零值 0</span>
+<span class="cmt">// priceTable["鍵盤"] = 2490       // ← 寫入會 panic: assignment to entry in nil map</span>
+priceTable = make(map[string]int)  <span class="cmt">// 先 make</span>
+priceTable["鍵盤"] = 2490           <span class="cmt">// 現在才能安全寫入</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong><code>nil</code> slice 和 <code>nil</code> map 待遇不同：<b>nil slice 可以 <code>append</code></b>（append 會幫你配空間），但 <b>nil map 一寫入就 panic</b>。所以拿到 map 一律先 <code>make</code>。（slice 的 nil 行為主題 004 已詳談。）</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-傳值與指標.go</code></td><td>寫 <code>ship(o *Order)</code>，用指標把訂單狀態改成 shipped</td><td>印出「訂單狀態：<code>shipped</code>」（若寫成傳值會停在 paid）</td></tr>
+        <tr><td><code>homework-02-pointer接收者.go</code></td><td>幫 <code>Cart</code> 寫 pointer receiver 方法 <code>Add()</code>，件數 +1</td><td>呼叫 3 次後印「購物車件數：<code>3</code>」（receiver 誤用值會一直是 0）</td></tr>
+        <tr><td><code>homework-03-new與make.go</code></td><td>用 <code>make</code> 建庫存 <code>map[string]int</code>，寫入兩筆再讀出</td><td>印「鍵盤庫存：<code>10</code>，滑鼠庫存：<code>25</code>」</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 006-指標/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>想在函式裡改到呼叫端的本尊</td><td>傳<b>指標</b> <code>*T</code>、呼叫時用 <code>&amp;x</code>；因為 Go <b>永遠傳值</b>，傳值只改到 copy</td></tr>
+        <tr><td>三個符號分不清</td><td><code>*T</code>＝型別、<code>&amp;x</code>＝取地址、<code>*p</code>＝解參考（讀/寫本尊）</td></tr>
+        <tr><td>對指標取欄位</td><td>直接寫 <code>p.欄位</code>（Go 自動解參考）；不用寫 <code>(*p).欄位</code></td></tr>
+        <tr><td>方法要改到自身</td><td>用 pointer receiver <code>(o *T)</code>；只讀不改用 value receiver <code>(o T)</code></td></tr>
+        <tr><td>同一型別的 receiver</td><td><b>全值或全指標，別混用</b>；只要有一個方法要改自身，就全用指標</td></tr>
+        <tr><td>用 <code>range</code> 想改 slice 元素</td><td>元素是<b>副本</b>，改它沒用；用索引 <code>xs[i] = ...</code> 才改得到本尊</td></tr>
+        <tr><td>建立 struct</td><td>用 <code>&amp;T{...}</code>（可帶初值、回指標）；<code>new</code> 幾乎用不到</td></tr>
+        <tr><td>建立 slice / map / channel</td><td>用 <code>make</code>（回本體，不是指標）；<code>new</code> 不適合這三種</td></tr>
+        <tr><td>對 map 寫入</td><td>先 <code>make</code>（或字面值）；<b>寫入 nil map 會 panic</b>（讀 nil map 則 OK 回零值）</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 006 · 指標 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

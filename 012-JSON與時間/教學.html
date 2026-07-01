@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<!--
+  主題 012 · JSON與時間 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>012 · JSON與時間</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 012 · JSON與時間</h1>
+    <p>用 <code>encoding/json</code> 把訂單／商品 struct 和 JSON 互轉、用 struct tag 控制欄位長相，並用 <code>time.Time</code> 處理下單時間、到期日與時間戳 —— 這是每個電商 API 收發資料時天天在做的兩件事。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 Marshal</a>
+    <a href="#s2">2 struct tag</a>
+    <a href="#s3">3 omitempty</a>
+    <a href="#s4">4 Unmarshal</a>
+    <a href="#s5">5 建立時間</a>
+    <a href="#s6">6 格式化/RFC3339</a>
+    <a href="#s7">7 加減時間</a>
+    <a href="#s8">8 Sub/時間戳</a>
+    <a href="#s9">9 巢狀</a>
+    <a href="#s10">10 time 進 JSON</a>
+    <a href="#s11">11 map[string]any</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((012 JSON與時間))
+    序列化
+      Marshal struct to JSON
+      struct tag 控制鍵名
+      只有 exported 欄位
+      omitempty 省略零值
+      Unmarshal 傳指標
+    time.Time
+      time.Date 建立
+      參考時間 2006-01-02 版面
+      RFC3339 標準格式
+      AddDate / Add 加減
+      Sub 得 Duration
+      Unix 時間戳互轉
+    JSON 進階
+      巢狀 struct 與 slice
+      time.Time 自動變 RFC3339
+      未知結構 map string any
+      取值靠型別斷言
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼把 struct 和 JSON 互轉（<code>Marshal</code>／<code>Unmarshal</code>）、用 <code>json:"..."</code> tag 控制 JSON 長相、為什麼「只有大寫欄位會被序列化」，以及用 <code>time.Time</code> 做格式化、加減、算時間戳。三個 sample 各對應一組概念。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。本主題延續 005 的 struct tag，把它真正拿來做序列化。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：序列化（sample-01-序列化）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 序列化：struct ↔ JSON、struct tag、omitempty</h2>
+    <div class="maplink">對應檔案：<code>sample-01-序列化.go</code> ｜ 跑：<code>go run 012-JSON與時間/sample-01-序列化.go</code></div>
+
+    <h3 id="s1">1. Marshal —— struct 變 JSON</h3>
+    <p>把 Go 的值轉成 JSON 叫「序列化 / Marshal」。<code>json.Marshal(v)</code> 回傳 <code>([]byte, error)</code>——注意它給的是 <b>位元組切片</b>，要印出來得先 <code>string(b)</code> 轉成文字。慣例上一定要接住那個 <code>err</code>。</p>
+    <pre><code>b, err := json.Marshal(order)
+if err != nil { <span class="cmt">/* 處理錯誤 */</span> }
+fmt.Println(string(b))   <span class="cmt">// []byte 要轉 string 才是人看得懂的 JSON</span>
+
+<span class="cmt">// 想要有排版（縮排）的版本，方便 log / debug：</span>
+pretty, _ := json.MarshalIndent(order, "", "  ")  <span class="cmt">// (值, 前綴, 縮排)</span></code></pre>
+    <div class="callout key"><strong>只有大寫欄位會被序列化</strong>這是本主題最重要的一條規則：<b>只有「大寫開頭（exported）」的欄位</b> encoding/json 才看得到。小寫欄位（如 <code>internal</code>）它<b>完全無視</b>，不會出現在 JSON 裡，也塞不回去。這跟 005 的「大小寫決定匯出」是同一套規則。</div>
+
+    <h3 id="s2">2. struct tag —— 控制 JSON 的鍵名</h3>
+    <p>Go 欄位習慣 <code>MixedCaps</code>（<code>ID</code>、<code>Customer</code>），但 JSON 慣例常是小寫 <code>id</code>、<code>customer</code>。用寫在<b>反引號</b>裡的 struct tag <code>json:"鍵名"</code> 把兩邊接起來（這正是 005 學過的 tag，這裡終於派上用場）。</p>
+    <pre><code>type Order struct {
+    ID       string `json:"id"`       <span class="cmt">// JSON 鍵名變小寫 id</span>
+    Customer string `json:"customer"`
+    Amount   int    `json:"amount"`   <span class="cmt">// 金額用 int，別用 float</span>
+    Note     string `json:"-"`        <span class="cmt">// "-" ＝ 永不序列化</span>
+}</code></pre>
+    <table>
+      <thead><tr><th>tag 寫法</th><th>效果</th></tr></thead>
+      <tbody>
+        <tr><td><code>json:"id"</code></td><td>JSON 鍵名用 <code>id</code></td></tr>
+        <tr><td><code>json:"coupon,omitempty"</code></td><td>鍵名 <code>coupon</code>，且值為零值時整個省略（見第 3 節）</td></tr>
+        <tr><td><code>json:"-"</code></td><td>這個欄位<b>永遠不</b>序列化（例如密碼、內部備註）</td></tr>
+        <tr><td>沒寫 tag</td><td>直接用欄位名當鍵名（大小寫照舊，如 <code>Amount</code>）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>慣例</strong>電商專案的 struct 幾乎每個欄位都會掛 <code>json</code> tag，好讓 API 的 JSON 鍵名穩定、符合前端約定。看到反引號裡的 <code>json:"..."</code> 就是在講「這欄位在 JSON 裡叫什麼」。</div>
+
+    <h3 id="s3">3. omitempty —— 零值就從輸出消失</h3>
+    <p>tag 加上 <code>,omitempty</code>，當該欄位是「零值」（數字 <code>0</code>、字串 <code>""</code>、<code>nil</code>、<code>false</code>）時，就<b>不會出現在 JSON</b> 裡。適合「非必填、沒有就別送」的欄位，如優惠券。</p>
+    <pre><code><span class="cmt">// Coupon 有值 → {"id":"A-1001",...,"coupon":"SUMMER10"}</span>
+<span class="cmt">// Coupon 是 ""  → {"id":"A-1002",...}  （沒有 coupon 這個鍵）</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong><code>omitempty</code> 判斷的是「Go 的零值」，不是「JSON 的 null」。所以 <code>Amount int</code> 若剛好是 <code>0</code>，加了 omitempty 也會被省略——金額為 0 是合法值時，別對它用 omitempty，不然接收端會以為「沒這個欄位」。</div>
+
+    <h3 id="s4">4. Unmarshal —— JSON 塞回 struct</h3>
+    <p>反過來把 JSON 還原成 struct 叫「反序列化 / Unmarshal」。關鍵：第二個參數要傳<b>指標</b> <code>&order</code>，函式才改得到你的變數（這就是 006 指標的用途）。</p>
+    <pre><code>var order Order
+if err := json.Unmarshal(data, &amp;order); err != nil { <span class="cmt">/* ... */</span> }
+fmt.Println(order.Amount)   <span class="cmt">// 已經是 Go 的 int，可直接運算</span></code></pre>
+    <div class="callout key"><strong>多的欄位會被安靜忽略</strong>JSON 裡有、但 struct 沒定義的鍵，Unmarshal <b>不會報錯</b>，直接跳過。這通常是好事（前端多送欄位不會炸），但也代表打錯字的 tag 會靜靜地漏資料——想「完整接住」未知欄位，看第 11 節的 <code>map[string]any</code>。</div>
+  </section>
+
+  <!-- ===== 群組 B：時間（sample-02-時間）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> time.Time：建立、格式化、加減、時間戳</h2>
+    <div class="maplink">對應檔案：<code>sample-02-時間.go</code> ｜ 跑：<code>go run 012-JSON與時間/sample-02-時間.go</code></div>
+
+    <div class="callout conv"><strong>為什麼 sample 用固定時間</strong>教學範例刻意用 <code>time.Date(...)</code> 造一個<b>固定基準時間</b>，而不是 <code>time.Now()</code>——這樣每次 <code>go run</code> 的輸出都一樣，方便你對照。實務上「現在時間」才用 <code>time.Now()</code>。</div>
+
+    <h3 id="s5">5. 建立一個 time.Time</h3>
+    <p>時間在 Go 裡是 <code>time.Time</code> 型別。手動指定某個時間用 <code>time.Date</code>；要「現在」用 <code>time.Now()</code>。指定時區能讓輸出穩定、不受本機時區影響。</p>
+    <pre><code>placedAt := time.Date(2026, time.January, 10, 9, 30, 0, 0, time.UTC)
+<span class="cmt">//                 年    月         日  時 分 秒 奈秒  時區</span>
+now := time.Now()   <span class="cmt">// 真的要「現在」時才用這個</span></code></pre>
+
+    <h3 id="s6">6. 格式化 / 解析 —— Go 特有的「參考時間」版面</h3>
+    <p>這是 Go 最反直覺的一點：格式化<b>不用</b> <code>yyyy-MM-dd</code>，而是拿一個<b>固定的參考時間</b>當範本——<code>2006-01-02 15:04:05</code>。你想要什麼格式，就把這個參考時間「排成那個樣子」傳給 <code>Format</code>。</p>
+    <table>
+      <thead><tr><th>參考數字</th><th>代表</th></tr></thead>
+      <tbody>
+        <tr><td><code>2006</code></td><td>年</td></tr>
+        <tr><td><code>01</code></td><td>月</td></tr>
+        <tr><td><code>02</code></td><td>日</td></tr>
+        <tr><td><code>15</code></td><td>時（24 小時制）</td></tr>
+        <tr><td><code>04</code></td><td>分</td></tr>
+        <tr><td><code>05</code></td><td>秒</td></tr>
+      </tbody>
+    </table>
+    <pre><code>placedAt.Format("2006/01/02 15:04")   <span class="cmt">// 2026/01/10 09:30</span>
+placedAt.Format(time.RFC3339)          <span class="cmt">// 2026-01-10T09:30:00Z（標準格式）</span>
+
+<span class="cmt">// 反向：字串 → time.Time，回傳 (time.Time, error)</span>
+t, err := time.Parse(time.RFC3339, "2026-01-17T09:30:00Z")</code></pre>
+    <div class="callout analogy"><strong>類比</strong>別的語言是給你一本「符號字典」（y=年、M=月…）要你拼；Go 是給你<b>一張範本照片</b>（2006-01-02…），你照著擺就好。記法：月 1、日 2、時 3、分 4、秒 5、年 6、時區 7（<code>1 2 3 4 5 6 7</code> 順著數）。</div>
+    <div class="callout conv"><strong>慣例</strong>API／DB 交換時間<b>優先用 <code>time.RFC3339</code></b>（就是 <code>2026-01-10T09:30:00Z</code> 這種）。time 套件有內建常數，不用自己記版面，也跨語言通用。</div>
+
+    <h3 id="s7">7. 加減時間 —— AddDate 與 Add</h3>
+    <p>兩種加減：<code>AddDate(年,月,日)</code> 適合「天/月/年」級距（如 7 天到期）；<code>Add(Duration)</code> 適合「時/分/秒」級距（如保留庫存 30 分鐘）。</p>
+    <pre><code>expireAt  := placedAt.AddDate(0, 0, 7)      <span class="cmt">// 下單 +7 天</span>
+holdUntil := placedAt.Add(30 * time.Minute) <span class="cmt">// +30 分鐘</span>
+
+<span class="cmt">// 比較先後用 Before / After / Equal（別用 == 比 time.Time）</span>
+expireAt.After(placedAt)   <span class="cmt">// true</span></code></pre>
+    <div class="callout trap"><strong>陷阱</strong>別用 <code>==</code> 比較兩個 <code>time.Time</code>——它還帶了時區與「單調時鐘」資訊，看起來一樣的兩個時間 <code>==</code> 可能為 false。要比先後用 <code>Before</code>／<code>After</code>，要比「同一時刻」用 <code>Equal</code>。</div>
+
+    <h3 id="s8">8. 兩時間相減 Sub、以及 Unix 時間戳</h3>
+    <p>兩個時間相減用 <code>a.Sub(b)</code>，得到 <code>Duration</code>（一段時長），再用 <code>.Hours()</code> 等換算。「幾天」就是 <code>.Hours()/24</code>。</p>
+    <pre><code>elapsed := t2.Sub(t1)              <span class="cmt">// Duration，例如 168h0m0s</span>
+days := elapsed.Hours() / 24       <span class="cmt">// 7</span></code></pre>
+    <p><b>Unix 時間戳</b>是「從 1970-01-01 UTC 起算的秒數」，一個純數字，是前後端／跨語言交換時間最通用的格式。</p>
+    <pre><code>ts := placedAt.Unix()              <span class="cmt">// 1768037400（秒）</span>
+back := time.Unix(ts, 0).UTC()     <span class="cmt">// 時間戳 → time.Time</span></code></pre>
+    <div class="callout key"><strong>Duration 是有型別的數字</strong><code>30 * time.Minute</code> 能寫出來，是因為 <code>time.Minute</code> 本身是個 Duration 常數。所以「半小時」寫 <code>30 * time.Minute</code>、「兩小時」寫 <code>2 * time.Hour</code>，讀起來像英文，也不會搞錯單位。</div>
+  </section>
+
+  <!-- ===== 群組 C：JSON 進階（sample-03-JSON進階）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> JSON 進階：巢狀、time 進 JSON、未知欄位</h2>
+    <div class="maplink">對應檔案：<code>sample-03-JSON進階.go</code> ｜ 跑：<code>go run 012-JSON與時間/sample-03-JSON進階.go</code></div>
+
+    <h3 id="s9">9. 巢狀 struct 與 slice</h3>
+    <p>真實訂單是巢狀的：一筆 <code>Order</code> 底下有 <code>Customer</code>（物件）和 <code>[]Item</code>（陣列）。你不用做特別的事——只要欄位型別是別的 struct 或 slice，Marshal 會自動一路往下轉，slice 變成 JSON array、struct 變成 JSON object。</p>
+    <pre><code>type Order struct {
+    ID       string    `json:"id"`
+    Customer Customer  `json:"customer"`   <span class="cmt">// 巢狀物件</span>
+    Items    []Item    `json:"items"`      <span class="cmt">// 變成 JSON 陣列</span>
+    PlacedAt time.Time `json:"placed_at"`
+}</code></pre>
+
+    <h3 id="s10">10. time.Time 進 JSON —— 自動變 RFC3339</h3>
+    <p>把上面那個 <code>PlacedAt time.Time</code> Marshal 出來，它會<b>自動變成 RFC3339 字串</b>，你什麼都不用做：</p>
+    <pre><code>"placed_at": "2026-01-10T09:30:00Z"</code></pre>
+    <div class="callout key"><strong>為什麼會自動</strong>因為 <code>time.Time</code> 自己實作了 <code>MarshalJSON</code>／<code>UnmarshalJSON</code>（用 RFC3339 格式）。任何型別只要實作這兩個方法，就能決定「自己怎麼變 JSON」——這是 encoding/json 的擴充點，你手上的專案可能會看到自訂型別這樣做。</div>
+
+    <h3 id="s11">11. 未知結構 —— map[string]any</h3>
+    <p>收到「沒有對應 struct」或「欄位會變」的 JSON（如第三方 webhook），可以 Unmarshal 進 <code>map[string]any</code>（<code>any</code> 是 <code>interface{}</code> 的別名，004/007 出現過）。取值時要用<b>型別斷言</b> <code>.(型別)</code> 還原成具體型別。</p>
+    <pre><code>var m map[string]any
+json.Unmarshal(raw, &amp;m)
+
+event  := m["event"].(string)    <span class="cmt">// 斷言成 string</span>
+amount := m["amount"].(float64)  <span class="cmt">// ⚠️ JSON 數字一律 float64！</span>
+tags   := m["tags"].([]any)      <span class="cmt">// 陣列 → []any</span>
+meta   := m["meta"].(map[string]any)  <span class="cmt">// 巢狀物件 → 再一層 map</span></code></pre>
+    <div class="callout trap"><strong>最常踩的雷</strong>用 <code>map[string]any</code> 接時，JSON 的數字<b>不管整數或小數，一律被解成 <code>float64</code></b>。所以金額要寫 <code>.(float64)</code>，寫成 <code>.(int)</code> 會直接 <b>panic</b>。要整數就自己再 <code>int(amount)</code> 轉一次。</div>
+    <div class="callout conv"><strong>慣例</strong>能定義 struct 就<b>盡量定 struct</b>（有型別檢查、好讀、IDE 有提示）；只有在「結構真的不固定 / 只想撈幾個欄位」時才退而用 <code>map[string]any</code>。別把它當預設作法。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-序列化.go</code></td><td>幫 Product 補 json tag（含 <code>omitempty</code>），Marshal 成 JSON、再 Unmarshal 回來</td><td>JSON 為 <code>{"name":"機械鍵盤","price":2490}</code>（Stock=0 被省略）；還原後價格 <code>1590</code></td></tr>
+        <tr><td><code>homework-02-時間.go</code></td><td>用 <code>Sub</code> 算「已成立幾天」、用 <code>AddDate</code> 算 +7 天到期日</td><td>已成立 <code>5</code> 天；到期日 <code>2026-01-17T09:30:00Z</code></td></tr>
+        <tr><td><code>homework-03-JSON進階.go</code></td><td>把未知 JSON 解進 <code>map[string]any</code>，用型別斷言取欄位</td><td>印出「訂單 <code>A-9001</code> 金額 <code>2680</code> 元」（amount 記得斷言 <code>float64</code>）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 012-JSON與時間/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>哪些欄位會進 JSON</td><td><b>只有大寫開頭（exported）</b>的欄位；小寫欄位 encoding/json 完全看不到</td></tr>
+        <tr><td>控制 JSON 鍵名</td><td>用 struct tag <code>json:"name"</code>；不要的欄位用 <code>json:"-"</code></td></tr>
+        <tr><td>非必填、沒有就別送</td><td>tag 加 <code>,omitempty</code>；但值可能合法為 0 的欄位別加（會被誤省略）</td></tr>
+        <tr><td>Marshal 的結果</td><td>是 <code>[]byte</code>，印出來要 <code>string(b)</code>；排版用 <code>MarshalIndent</code></td></tr>
+        <tr><td>Unmarshal 塞回 struct</td><td>第二參數傳<b>指標</b> <code>&amp;v</code>；多的欄位會被安靜忽略</td></tr>
+        <tr><td>金額欄位型別</td><td>用 <code>int</code>，別用 <code>float64</code>（避免浮點精度誤差）</td></tr>
+        <tr><td>時間格式化</td><td>用「參考時間」<code>2006-01-02 15:04:05</code> 當版面；API/DB 優先 <code>time.RFC3339</code></td></tr>
+        <tr><td>加減時間</td><td>天/月/年用 <code>AddDate</code>；時/分/秒用 <code>Add(30 * time.Minute)</code></td></tr>
+        <tr><td>比較兩個時間</td><td>用 <code>Before</code>／<code>After</code>／<code>Equal</code>，<b>別用 <code>==</code></b></td></tr>
+        <tr><td>time.Time 進 JSON</td><td>自動變 RFC3339 字串，不用自己處理</td></tr>
+        <tr><td>解未知結構的 JSON</td><td>用 <code>map[string]any</code>；<b>數字一律是 <code>float64</code></b>，斷言成 <code>int</code> 會 panic</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 012 · JSON與時間 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

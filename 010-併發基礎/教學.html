@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<!--
+  主題 010 · 併發基礎 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>010 · 併發基礎</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 010 · 併發基礎</h1>
+    <p>goroutine 並行、channel 傳遞、WaitGroup 等待、Mutex 保護共享狀態、select 多路等待 —— 這是讀懂電商後端「同時寄通知、並行處理訂單、防止超賣」那些程式碼的入場券。目標只求基礎與安全。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 goroutine</a>
+    <a href="#s2">2 WaitGroup</a>
+    <a href="#s3">3 defer Done</a>
+    <a href="#s4">4 channel</a>
+    <a href="#s5">5 close/range</a>
+    <a href="#s6">6 worker pool</a>
+    <a href="#s7">7 Mutex</a>
+    <a href="#s8">8 Lock/Unlock</a>
+    <a href="#s9">9 data race</a>
+    <a href="#s10">10 select</a>
+    <a href="#s11">11 timeout</a>
+    <a href="#s12">12 default</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((010 併發基礎))
+    goroutine
+      go 前綴 開背景執行
+      幾乎零成本 便宜
+      非同步 輸出順序不定
+      WaitGroup Add/Done/Wait
+      defer Done 保證計數歸零
+    channel
+      make chan T 有型別輸送帶
+      送 ch左箭v 收 v:=左箭ch
+      close 加 for range 收到關閉
+      方向型別 只送 只收
+      worker pool 雛形
+    Mutex
+      保護共享狀態
+      Lock 後立刻 defer Unlock
+      避免 data race 超賣
+      鎖與資料放同一 struct
+      go test -race 檢查
+    select
+      同時等多個 channel
+      誰先就緒走誰
+      time.After 做逾時
+      default 變非阻塞
+      接 011 context
+    核心心法
+      用通訊共享記憶體
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼用 <code>go</code> 開 goroutine 並行做事、用 <code>sync.WaitGroup</code> 等它們全部完成、用 <code>channel</code> 在 goroutine 之間傳資料、用 <code>sync.Mutex</code> 保護「大家會同時改的變數」、以及用 <code>select</code> 同時等多個 channel（含逾時）。四個 sample 各對應一組概念，都是<b>安全、race-free 的正確寫法</b>。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出（併發輸出順序可能不同，屬正常）→ 最後做<a href="#hw">動手練習</a>。</div>
+      <div class="callout analogy"><strong>一句話心法</strong>Go 的併發哲學是「<b>不要用共享記憶體來通訊，要用通訊來共享記憶體</b>」—— 能用 channel 讓資料流動，就別讓一堆 goroutine 去搶同一塊變數；真的非搶不可，才上 <code>Mutex</code>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：goroutine + WaitGroup（sample-01-goroutine）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> goroutine：開背景並行，用 WaitGroup 等全部完成</h2>
+    <div class="maplink">對應檔案：<code>sample-01-goroutine.go</code> ｜ 跑：<code>go run 010-併發基礎/sample-01-goroutine.go</code></div>
+
+    <div class="callout key"><strong>核心觀念</strong>在任何函式呼叫前面加一個 <code>go</code>，那個呼叫就會被丟到<b>背景並行執行</b>，main 不會等它、直接往下跑。goroutine 極輕量（起一個大約幾 KB），開幾千個都沒問題 —— 這是 Go 併發好用的根本原因。</div>
+
+    <h3 id="s1">1. go：把一件事丟到背景</h3>
+    <p>電商情境：一筆訂單成立，要同時寄 Email、SMS、App 推播。這三件事互相獨立又都在等網路，各開一個 goroutine 並行做最划算：</p>
+    <pre><code>go func(channel string) {
+    <span class="cmt">// 這段在背景跑；main 不會停下來等它</span>
+    sendNotify(channel)
+}(ch)   <span class="cmt">// ← 立刻回來繼續下一圈，不阻塞</span></code></pre>
+    <div class="callout trap"><strong>陷阱：main 結束，goroutine 就被收掉</strong>如果 <code>main</code> 沒等，它自己跑完就 return，程式結束，<b>背景還沒做完的 goroutine 會被直接砍掉</b>（通知可能一封都沒寄出）。所以幾乎每次開 goroutine，都要有辦法「等它做完」—— 那就是下一節的 WaitGroup。</div>
+
+    <h3 id="s2">2. sync.WaitGroup：等一組 goroutine 全部完成</h3>
+    <p><code>WaitGroup</code> 就是個計數器，用三個動作：<code>Add(n)</code> 加計數、<code>Done()</code> 減 1、<code>Wait()</code> 卡住直到歸零。心法：<b>開幾個就 Add 幾個（且 Add 要在 <code>go</code> 之前）、每個 goroutine 收尾 Done、主流程 Wait</b>。</p>
+    <pre><code>var wg sync.WaitGroup
+for _, ch := range channels {
+    wg.Add(1)              <span class="cmt">// 先加計數（務必在 go 之前）</span>
+    go func(channel string) {
+        defer wg.Done()    <span class="cmt">// 收尾減 1</span>
+        sendNotify(channel)
+    }(ch)
+}
+wg.Wait()                  <span class="cmt">// 卡住，直到三個都 Done 才往下</span>
+fmt.Println("全部寄完")     <span class="cmt">// 保證在所有通知之後才印</span></code></pre>
+    <div class="callout trap"><strong>陷阱：Add 要在 go 外面</strong>如果把 <code>wg.Add(1)</code> 寫到 goroutine <b>裡面</b>，可能 <code>Wait()</code> 已經先跑到、計數還沒加上去，就提早通過了。正確順序是「先 Add、再 go」。</div>
+
+    <h3 id="s3">3. defer wg.Done()：保證計數一定會減</h3>
+    <p><code>Done()</code> 一定要配 <code>defer</code>（呼應主題 002 的 defer）：這樣就算 goroutine 中途 <code>return</code> 或 panic，計數<b>照樣會 -1</b>；否則 <code>Wait()</code> 會永遠等不到歸零 —— 程式卡死（deadlock）。</p>
+    <div class="callout conv"><strong>更現代的寫法（Go 1.25+）</strong>新版可用 <code>wg.Go(func(){ ... })</code>，它會自動幫你 <code>Add(1)</code> 並在函式結束時 <code>Done()</code>，計數不可能寫漏。本 sample 仍用經典的 <code>Add</code>/<code>Done</code>/<code>Wait</code>，因為你在既有電商 code 裡看到的絕大多數是這個寫法 —— 兩個都要看得懂。</div>
+  </section>
+
+  <!-- ===== 群組 B：channel（sample-02-channel）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> channel：goroutine 之間的輸送帶</h2>
+    <div class="maplink">對應檔案：<code>sample-02-channel.go</code> ｜ 跑：<code>go run 010-併發基礎/sample-02-channel.go</code></div>
+
+    <div class="callout analogy"><strong>類比</strong>channel 是一條<b>有型別的輸送帶</b>：一端把東西放上去（送），另一端拿下來（收）。goroutine 之間不用共享變數、不用鎖，資料直接在輸送帶上流動 —— 這就是「用通訊共享記憶體」。</div>
+
+    <h3 id="s4">4. 建立、送、收</h3>
+    <p><code>make(chan T)</code> 建一條只能流 <code>T</code> 的 channel；<code>ch &lt;- v</code> 送、<code>v := &lt;-ch</code> 收。預設的 channel 是<b>無緩衝</b>的：送的那一方會<b>卡住</b>，直到有另一方來收（這是天然的同步點）。</p>
+    <pre><code>jobs := make(chan Order)   <span class="cmt">// 只能流 Order</span>
+results := make(chan int)   <span class="cmt">// 只能流 int</span>
+
+jobs &lt;- order               <span class="cmt">// 送：沒人收就在這裡等</span>
+subtotal := &lt;-results       <span class="cmt">// 收：沒東西就在這裡等</span></code></pre>
+    <div class="callout trap"><strong>陷阱：無緩衝 channel 會互等成 deadlock</strong>如果在<b>同一個 goroutine</b>裡「先送、再收」同一條無緩衝 channel，送的時候就卡死了（沒有別人來收）。sample 裡因此用一個獨立 goroutine 負責送 <code>jobs</code>，主流程負責收 <code>results</code>，兩邊分開才不會互鎖。</div>
+
+    <h3 id="s5">5. close 與 for range：收到「關閉」為止</h3>
+    <p>送方送完後 <code>close(ch)</code> 宣告「沒有更多東西了」；收方用 <code>for v := range ch</code> 一直收，channel 一被 close，這個迴圈就<b>自然結束</b>。這是「不知道會有幾筆、收到沒有為止」最乾淨的寫法。</p>
+    <pre><code><span class="cmt">// 送方：送完就關</span>
+for _, o := range orders { jobs &lt;- o }
+close(jobs)
+
+<span class="cmt">// 收方：range 到 channel 關閉就停</span>
+for o := range jobs {
+    process(o)
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong><b>只有送方 close，收方不要 close</b>（也不要送已關閉的 channel，會 panic）。close 是「我這邊沒東西要送了」的訊號，交給負責送的那方發出最合理。</div>
+
+    <h3 id="s6">6. worker pool：多個 worker 分食同一條 jobs</h3>
+    <p>把「起 N 個 worker、每個都 <code>for range jobs</code>」合起來，就是電商後端常見的 <b>worker pool</b>：一批訂單丟進 <code>jobs</code>，N 個 worker 並行搶著處理，結果丟回 <code>results</code>。sample 用 <code>WaitGroup</code> 等所有 worker 做完後再 <code>close(results)</code>，主流程才知道可以停止收集。</p>
+    <pre><code>func worker(id int, jobs &lt;-chan Order, results chan&lt;- int) {
+    for o := range jobs {          <span class="cmt">// 搶到一筆就處理</span>
+        results &lt;- o.Price * o.Qty
+    }
+}</code></pre>
+    <div class="callout conv"><strong>慣例：channel 的「方向型別」</strong>參數寫成 <code>&lt;-chan Order</code>（只能收）、<code>chan&lt;- int</code>（只能送），把用途寫進型別。這樣編譯器會擋掉「worker 不小心往 jobs 送」這種錯，也讓讀 code 的人一眼看懂資料流向。</div>
+  </section>
+
+  <!-- ===== 群組 C：Mutex（sample-03-Mutex）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> sync.Mutex：保護「大家會同時改」的共享狀態</h2>
+    <div class="maplink">對應檔案：<code>sample-03-Mutex.go</code> ｜ 跑：<code>go run 010-併發基礎/sample-03-Mutex.go</code>（或加 <code>-race</code>）</div>
+
+    <div class="callout key"><strong>什麼時候需要 Mutex</strong>當<b>多個 goroutine 會同時讀寫同一塊記憶體</b>（例如一個庫存數字、一個計數器），就需要保護。channel 能解決的優先用 channel；但「大家要更新同一個共享變數」這種，用 <code>Mutex</code> 最直接。</div>
+
+    <h3 id="s7">7. data race：不保護會發生什麼</h3>
+    <p>熱賣商品同時湧入下單，很多 goroutine <b>同時扣同一個 <code>stock</code></b>。「扣庫存」其實是三步：讀 stock → 減 1 → 寫回。兩個 goroutine 可能都讀到 <code>100</code>、各自算成 <code>99</code>、各自寫回 <code>99</code> —— 賣了兩件卻只扣一件。這種「結果取決於誰先誰後」的錯就叫 <b>data race</b>，會超賣。</p>
+    <div class="callout trap"><strong>陷阱：data race 很隱蔽</strong>它不一定每次都出錯，可能測起來都對、上線量一大才偶爾少扣，最難抓。<b>不要靠運氣</b>：多個 goroutine 共享可變狀態，就一定要保護。</div>
+
+    <h3 id="s8">8. Lock + defer Unlock：把「讀-改-寫」圍成不可分割的一段</h3>
+    <p><code>sync.Mutex</code>（互斥鎖）保證<b>同一時間只有一個 goroutine</b>能進入 <code>Lock()</code> 與 <code>Unlock()</code> 之間那段。慣例：<b>Lock 後立刻 <code>defer Unlock</code></b>，成對出現、就算中途 return 也一定會解鎖。</p>
+    <pre><code>func (inv *Inventory) Deduct(n int) bool {
+    inv.mu.Lock()
+    defer inv.mu.Unlock()      <span class="cmt">// 一鎖就登記解鎖</span>
+
+    if inv.stock &lt; n {
+        return false           <span class="cmt">// 中途 return，defer 仍會 Unlock</span>
+    }
+    inv.stock -= n             <span class="cmt">// 同一時間只有一個人在做這行</span>
+    return true
+}</code></pre>
+    <div class="callout conv"><strong>慣例：鎖和它保護的資料放同一個 struct</strong>把 <code>mu sync.Mutex</code> 和 <code>stock int</code> 放進同一個 <code>Inventory</code>，一看就知道「這把鎖保護誰」。<code>Mutex</code> 的零值就是「未上鎖」，不用初始化，直接用。<b>讀</b>共享資料（如 <code>Stock()</code>）只要有別人可能同時<b>寫</b>，也要上鎖。</div>
+
+    <h3 id="s9">9. 結果驗證：100 個並行扣款，精準到 0</h3>
+    <p>sample 開 100 個 goroutine、每個扣 1 件，靠 Mutex 保護，最後<b>剛好扣到 0</b>。想證明「沒鎖真的會錯 / 有鎖真的沒事」，用 Go 內建的競態偵測器：</p>
+    <pre><code>go run -race 010-併發基礎/sample-03-Mutex.go</code></pre>
+    <div class="callout key"><strong>神器：<code>-race</code></strong>加上 <code>-race</code> 執行（或測試時 <code>go test -race</code>），Go 會在跑的時候幫你偵測有沒有「沒保護的並行讀寫」，抓到就印出 <code>DATA RACE</code> 和出事的兩行。本 sample 上了鎖，跑 <code>-race</code> 是乾淨的；把 Lock/Unlock 註解掉再跑，就會看到它報警。寫併發程式養成用 <code>-race</code> 的習慣。</div>
+  </section>
+
+  <!-- ===== 群組 D：select（sample-04-select）===== -->
+  <section class="topic">
+    <h2><span class="tag">D</span> select：同時等多個 channel，誰先好就處理誰</h2>
+    <div class="maplink">對應檔案：<code>sample-04-select.go</code> ｜ 跑：<code>go run 010-併發基礎/sample-04-select.go</code></div>
+
+    <div class="callout analogy"><strong>類比</strong><code>select</code> 之於 channel，就像 <code>switch</code> 之於值：它同時盯著好幾條 channel，<b>哪一條先有動靜就走那個 case</b>；若當下沒有任何一條就緒，就整個卡住等（除非有 <code>default</code>）。</div>
+
+    <h3 id="s10">10. select 多路等待：取最快回覆的</h3>
+    <p>電商情境：向兩家供應商<b>同時</b>詢價，誰先回就用誰的報價。兩條 channel 一起等，<code>select</code> 會選先就緒的那個：</p>
+    <pre><code>select {
+case p := &lt;-supplierA:
+    fmt.Println("採用 A：", p)
+case p := &lt;-supplierB:
+    fmt.Println("採用 B：", p)   <span class="cmt">// 兩者先就緒的勝出</span>
+}</code></pre>
+    <div class="callout trap"><strong>陷阱：多個同時就緒是「隨機」挑一個</strong>如果 <code>select</code> 有兩個以上 case 同時就緒，Go 會<b>隨機</b>選一個（不是由上到下）。所以別依賴 case 的先後順序來決定優先權。</div>
+
+    <h3 id="s11">11. select + time.After：加逾時，別傻等</h3>
+    <p>不能無限等一家慢供應商拖垮結帳。<code>time.After(d)</code> 回傳一條 channel，它會在 <code>d</code> 之後才送出值 —— 拿它當一個 case，就是「逾時」分支：</p>
+    <pre><code>select {
+case p := &lt;-slow:
+    use(p)
+case &lt;-time.After(100 * time.Millisecond):
+    fmt.Println("詢價逾時，改用預設價")   <span class="cmt">// 100ms 到了還沒回就走這</span>
+}</code></pre>
+    <div class="callout key"><strong>前導：這就是 011 context 的雛形</strong>「等一件事，但最多等這麼久，逾時就放棄」是電商後端每天在做的事。這裡用 <code>select</code> + <code>time.After</code> 手做一次；下個主題 <b>011 context</b> 會把「逾時 / 取消」包裝成標準的 <code>context.WithTimeout</code>，配 <code>ctx.Done()</code>（也是一條 channel）搭 <code>select</code> 用。</div>
+
+    <h3 id="s12">12. select + default：非阻塞地「看一眼」</h3>
+    <p>加一個 <code>default</code>，<code>select</code> 就<b>不阻塞</b>：如果沒有任何 case 當下就緒，立刻走 <code>default</code>，繼續做別的事。適合「探看一下 channel 有沒有東西，沒有就算了」：</p>
+    <pre><code>select {
+case msg := &lt;-stockReport:
+    handle(msg)
+default:
+    <span class="cmt">// 沒有回報就別等，往下做別的</span>
+    fmt.Println("目前沒有庫存回報")
+}</code></pre>
+    <div class="callout conv"><strong>慣例</strong>要「阻塞等到有東西」就<b>不寫</b> default；要「有就拿、沒有就跳過」就加 default。這跟 002 那個「switch 也可以有 default」的直覺一致。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-goroutine.go</code></td><td>用 goroutine 並行算每個商品小計，WaitGroup 等全部完成</td><td>印出 3 行小計（<code>2490</code>／<code>1180</code>／<code>8990</code>，順序可能不同）+「全部小計計算完成」</td></tr>
+        <tr><td><code>homework-02-channel.go</code></td><td>各商品的小計用 channel 傳回主流程，收固定筆數並加總</td><td>印出「購物車總金額 <code>12660</code> 元」</td></tr>
+        <tr><td><code>homework-03-Mutex.go</code></td><td>用 Mutex 保護共享計數器，200 個並行 +1</td><td>印出「今日已完成訂單數：<code>200</code>」；<code>-race</code> 應無競爭</td></tr>
+        <tr><td><code>homework-04-select.go</code></td><td>用 select 等付款結果，加一個 <code>time.After</code> 逾時分支</td><td>印出「付款結果：<code>付款成功</code>」（50ms &lt; 200ms 先就緒）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 010-併發基礎/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>開背景並行</td><td>呼叫前加 <code>go</code>；<b>main 不會等它</b>，要有辦法等它做完（WaitGroup / channel）</td></tr>
+        <tr><td>等一組 goroutine 完成</td><td><code>wg.Add(1)</code>（在 <b>go 之前</b>）→ goroutine 內 <code>defer wg.Done()</code> → 主流程 <code>wg.Wait()</code>；Go 1.25+ 可用 <code>wg.Go(func(){})</code></td></tr>
+        <tr><td>goroutine 之間傳資料</td><td>優先用 <code>channel</code>（「用通訊共享記憶體」）；<code>ch &lt;- v</code> 送、<code>v := &lt;-ch</code> 收</td></tr>
+        <tr><td>不知幾筆、收到沒有為止</td><td>送方送完 <code>close(ch)</code>（<b>只有送方 close</b>）；收方 <code>for v := range ch</code> 收到關閉自動停</td></tr>
+        <tr><td>channel 參數</td><td>用方向型別 <code>&lt;-chan T</code>（只收）/ <code>chan&lt;- T</code>（只送），把用途寫進型別</td></tr>
+        <tr><td>多個 goroutine 改同一變數</td><td>用 <code>sync.Mutex</code>：<code>mu.Lock()</code> 後<b>立刻</b> <code>defer mu.Unlock()</code>；鎖和資料放同一 struct；讀也要鎖</td></tr>
+        <tr><td>檢查有沒有 data race</td><td>跑 <code>go run -race</code> / <code>go test -race</code>；抓到會印 <code>DATA RACE</code> 與出事的行</td></tr>
+        <tr><td>同時等多個 channel</td><td><code>select { case ...: }</code>，先就緒的勝出；<b>多個同時就緒是隨機挑</b>，別靠順序</td></tr>
+        <tr><td>逾時 / 非阻塞</td><td>逾時：<code>case &lt;-time.After(d):</code>；非阻塞：加 <code>default</code>（沒人就緒就立刻走 default）</td></tr>
+        <tr><td>常見卡死（deadlock）</td><td>同一 goroutine 對無緩衝 channel 先送後收；忘了 <code>Done()</code> 讓 <code>Wait()</code> 永遠等 —— 都會卡死</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 010 · 併發基礎 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

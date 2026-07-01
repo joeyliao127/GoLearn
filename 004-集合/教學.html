@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--
+  主題 004 · 集合 — 教學文件（由 new-topic skill 產生的骨架）
+  規則：每個 sample 對應一個 .topic 群組；章節與 sample 註解一一對應；
+        callout 用 key/conv/trap/analogy；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  純前端、自包含、繁中；HTML 註解不可巢狀。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>004 · 集合</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 004 · 集合</h1>
+    <p>slice（可變長度清單）、map（鍵值字典）、array（固定長度）—— 電商 domain 的訂單明細、商品列表、庫存表全靠它們裝資料。學會 <code>append</code> / <code>v, ok :=</code> / <code>delete</code>，並閃過 nil map 寫入 panic 與 slice aliasing 這兩個經典陷阱。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 slice 字面值</a>
+    <a href="#s2">2 append</a>
+    <a href="#s3">3 走訪/加總</a>
+    <a href="#s4">4 索引/slicing/array</a>
+    <a href="#s5">5 map 讀寫</a>
+    <a href="#s6">6 v, ok := 判存在</a>
+    <a href="#s7">7 delete/走訪</a>
+    <a href="#s8">8 nil slice</a>
+    <a href="#s9">9 nil map panic</a>
+    <a href="#s10">10 slice aliasing</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((004 集合))
+    slice 可變清單
+      字面值 []T{...}
+      append 加尾巴
+      for range 走訪加總
+      索引 與 slicing s[low:high]
+      len 與 cap
+    map 字典
+      map[K]V 讀寫
+      零值陷阱
+      v, ok := 判存在
+      delete 刪 key
+      走訪順序不保證
+    array 固定長度
+      長度是型別一部分
+      實務少用 改用 slice
+    nil 與 aliasing
+      nil slice 可 append
+      nil map 寫入會 panic
+      slice 共享底層陣列
+      用 copy 切乾淨副本
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>怎麼用 <code>slice</code> 裝可變長度的清單（<code>append</code> 加東西）、用 <code>map</code> 做「以 ID 查值」的字典（<code>v, ok :=</code> 判存在），以及兩個非記不可的陷阱：<b>nil map 一寫入就 panic</b>、<b>slice 會共享底層陣列（aliasing）</b>。三個 sample 各對應一組概念。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：slice（sample-01-slice）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> slice：可變長度的清單（電商最常用的容器）</h2>
+    <div class="maplink">對應檔案：<code>sample-01-slice.go</code> ｜ 跑：<code>go run 004-集合/sample-01-slice.go</code></div>
+
+    <div class="callout key"><strong>核心觀念</strong><code>slice</code>（切片）是 Go 的「可變長度清單」，對應其他語言的 <code>List</code> / <code>ArrayList</code> / Python 的 <code>list</code>。電商裡的購物車、訂單明細、商品列表幾乎<b>都是 slice</b>。它的長度會變、要幾個放幾個。</div>
+
+    <h3 id="s1">1. 用字面值建 slice</h3>
+    <p>最常見的起手式是 slice 字面值 <code>[]T{ ... }</code>。<code>[]</code> 裡<b>不寫長度</b>（寫了長度就變成下面第 4 節的 array 了），要幾個元素就給幾個：</p>
+    <pre><code>cart := []Product{
+    {Name: "機械鍵盤", Price: 2490},
+    {Name: "滑鼠墊",   Price: 290},
+    {Name: "USB-C 線", Price: 190},
+}
+<span class="cmt">// len(cart) == 3</span></code></pre>
+
+    <h3 id="s2">2. append —— 往尾巴加東西（slice 的靈魂）</h3>
+    <p>用內建的 <code>append</code> 往 slice 尾巴加元素，可以一次加多個。<b>務必把回傳值指回原變數</b>：</p>
+    <pre><code>cart = append(cart, Product{Name: "手機支架", Price: 350})
+cart = append(cart, a, b)   <span class="cmt">// 一次加多個</span></code></pre>
+    <div class="callout trap"><strong>陷阱：一定要 <code>cart = append(...)</code></strong>當底層陣列容量不夠，<code>append</code> 會<b>配一塊更大的新陣列、回傳一個新的 slice</b>。若寫成 <code>append(cart, x)</code> 卻沒把結果接回 <code>cart</code>，那筆就白加了（甚至改到別人）。所以慣例永遠是 <code>s = append(s, ...)</code>。</div>
+
+    <h3 id="s3">3. 走訪與加總 —— for range 是標配</h3>
+    <p>走訪 slice 幾乎都用 <code>for range</code>，每輪給 <code>(索引, 元素副本)</code>；用不到索引就用 <code>_</code>：</p>
+    <pre><code>total := 0
+for _, p := range cart {
+    total += p.Price
+}</code></pre>
+
+    <h3 id="s4">4. 索引 / slicing / 與 array 的差別</h3>
+    <p>索引從 <code>0</code> 起：<code>cart[0]</code> 是第一項。<b>slice 表達式</b> <code>s[low:high]</code> 取「<code>low</code> 到 <code>high-1</code>」這一段（<b>含頭不含尾</b>）；省略 <code>low</code> 預設 0、省略 <code>high</code> 預設 <code>len</code>：</p>
+    <pre><code>top3 := cart[:3]   <span class="cmt">// 前 3 項（索引 0,1,2）</span></code></pre>
+    <p>對照 <b>array</b>（陣列）：長度寫死在型別裡、<b>是型別的一部分</b>、不能變。實務上幾乎只用 slice，array 少見（認得它、知道差在哪即可）：</p>
+    <pre><code>var q [3]int   <span class="cmt">// 固定 3 格的 array；[3]int 和 [4]int 是不同型別</span>
+q[0] = 12000</code></pre>
+    <div class="callout conv"><strong>慣例</strong>「數量會變」用 <b>slice</b>（<code>[]T</code>），這是 99% 的情況；只有「數量鐵定固定」（如 RGB 三色、一週七天）才考慮 array。<code>len(s)</code> 拿長度、<code>cap(s)</code> 拿容量（底層陣列能裝多少，塞滿了 <code>append</code> 才會重配）。</div>
+    <div class="callout analogy"><strong>類比</strong>slice 像「可伸縮的伸縮桿」，array 像「固定長度的鐵尺」。slice 其實是「看著一塊底層陣列的視窗」——這個觀念在群組 C 的 aliasing 陷阱會變得很關鍵，先記著。</div>
+  </section>
+
+  <!-- ===== 群組 B：map（sample-02-map）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> map：鍵值字典，與 <code>v, ok :=</code> 判存在</h2>
+    <div class="maplink">對應檔案：<code>sample-02-map.go</code> ｜ 跑：<code>go run 004-集合/sample-02-map.go</code></div>
+
+    <div class="callout key"><strong>核心觀念</strong><code>map[K]V</code> 是 Go 的字典（其他語言的 <code>dict</code> / <code>HashMap</code>），做「<b>以 key 查 value</b>」。電商裡的庫存表（SKU→數量）、價目表（ID→價格）、購物車數量都是它。</div>
+
+    <h3 id="s5">5. 建 map 與讀寫</h3>
+    <p>型別是 <code>map[鍵型別]值型別</code>。可以用字面值建，之後用 key 讀寫；對「不存在的 key」賦值就是新增一筆：</p>
+    <pre><code>stock := map[string]int{"A001": 12, "A003": 7}
+stock["A001"] -= 3     <span class="cmt">// 出貨扣庫存</span>
+stock["A009"] = 20     <span class="cmt">// 對新 key 賦值 = 新增</span>
+len(stock)             <span class="cmt">// 目前有幾個 key</span></code></pre>
+
+    <h3 id="s6">6. 零值陷阱 &amp; <code>v, ok :=</code>（map 最重要的 idiom）</h3>
+    <p>讀一個<b>不存在的 key 不會報錯</b>，會回傳「值型別的零值」（<code>int</code> 是 0、<code>string</code> 是 <code>""</code>）。所以光看 <code>stock["X"] == 0</code> 分不出「庫存剛好是 0」還是「根本沒這個 key」。正解是<b>逗號 ok</b> 寫法：</p>
+    <pre><code>if qty, ok := stock["A002"]; ok {
+    <span class="cmt">// ok==true：key 存在，qty 是它的值（可能剛好是 0）</span>
+} else {
+    <span class="cmt">// ok==false：key 不存在</span>
+}</code></pre>
+    <div class="callout key"><strong>為什麼重要</strong>「查存在」在電商 code 天天用：判斷某 SKU 在不在庫存表、某會員在不在名單、某折扣碼有沒有登記。記住口訣：<b>要判斷 key 在不在，就用 <code>v, ok := m[k]</code>，看 <code>ok</code></b>，別只看值。</div>
+
+    <h3 id="s7">7. delete 刪 key &amp; 走訪 map</h3>
+    <p><code>delete(m, key)</code> 刪一筆（下架商品）；刪一個<b>不存在的 key 也不會報錯</b>（安全）。走訪一樣用 <code>for range</code>，每輪給 <code>(鍵, 值)</code>：</p>
+    <pre><code>delete(stock, "A002")
+for sku, qty := range stock {
+    fmt.Println(sku, qty)
+}</code></pre>
+    <div class="callout trap"><strong>陷阱：走訪順序不保證</strong>Go 的 map 走訪順序是<b>隨機的、每次可能不同</b>（語言故意這樣設計，防你依賴順序）。需要固定輸出順序，得先把 key 收進一個 slice、<code>sort</code> 排序後，再照排好的 key 去查 map。</div>
+  </section>
+
+  <!-- ===== 群組 C：nil 與 aliasing（sample-03-nil與aliasing）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> nil 行為與 slice aliasing（兩個經典大坑）</h2>
+    <div class="maplink">對應檔案：<code>sample-03-nil與aliasing.go</code> ｜ 跑：<code>go run 004-集合/sample-03-nil與aliasing.go</code></div>
+
+    <h3 id="s8">8. nil slice —— 可以直接 append</h3>
+    <p>只宣告不初始化的 slice 是 <code>nil</code>（<code>len=0, cap=0</code>），但<b>對它 <code>append</code> 完全合法</b>。要「逐步收集」一個清單時，慣例上就直接宣告再一路 append：</p>
+    <pre><code>var items []string          <span class="cmt">// nil slice</span>
+items = append(items, "鍵盤") <span class="cmt">// 對 nil slice append，OK！</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>需要「先空著、之後才慢慢加」的清單，直接 <code>var xs []T</code> 就好，不必特地 <code>make</code>。這也是為什麼函式回傳「空清單」時常直接回一個 nil slice——呼叫端照樣能 <code>range</code>、能 <code>append</code>、<code>len</code> 是 0，行為一致。</div>
+
+    <h3 id="s9">9. nil map —— 一「寫入」就 panic！</h3>
+    <p>對照 slice，<code>map</code> 就危險多了：只宣告的 map 是 <code>nil</code>，<b>讀</b> nil map 不會 panic（回零值），但<b>寫入 nil map 會直接 runtime panic</b>。map 一定要先 <code>make</code>（或用字面值建好）才寫：</p>
+    <pre><code>var m map[string]int   <span class="cmt">// nil map</span>
+_ = m["x"]             <span class="cmt">// 讀：OK，回零值 0</span>
+m["x"] = 1             <span class="cmt">// 寫：💥 panic: assignment to entry in nil map</span>
+
+m = make(map[string]int) <span class="cmt">// 先 make</span>
+m["x"] = 1               <span class="cmt">// 現在寫入 OK</span></code></pre>
+    <div class="callout trap"><strong>必記陷阱</strong><b>nil slice 可 append，nil map 寫入 panic</b>——這是 004 最容易考倒人的對比。實務常見於：struct 裡有個 map 欄位忘了初始化，第一次寫就炸。解法是建立 struct 時就把 map <code>make</code> 好，或用字面值 <code>map[K]V{}</code>。</div>
+
+    <h3 id="s10">10. slice aliasing —— 兩個 slice 共享同一塊底層陣列</h3>
+    <p>回到第 4 節說的「slice 是看著底層陣列的視窗」。把一個 slice <b>指派</b>給另一個、或用 <code>s[low:high]</code> <b>切一段</b>，得到的是「看<b>同一塊</b>底層陣列的另一個視窗」，<b>不是複製資料</b>。所以改一邊會動到另一邊：</p>
+    <pre><code>cart  := []string{"鍵盤", "滑鼠", "螢幕", "耳機"}
+promo := cart[0:2]      <span class="cmt">// promo 和 cart 共享底層陣列</span>
+promo[0] = "換一個"      <span class="cmt">// cart[0] 也跟著變成 "換一個"！</span></code></pre>
+    <p>想要「真正獨立的一份」，用內建 <code>copy</code> 複製到新 slice：</p>
+    <pre><code>indep := make([]string, len(cart))
+copy(indep, cart)      <span class="cmt">// 複製資料；indep 和 cart 從此各走各的</span>
+indep[0] = "改這個"     <span class="cmt">// 不會影響 cart</span></code></pre>
+    <div class="callout trap"><strong>陷阱：切子清單交出去要小心</strong>「切一段 slice 傳給別的函式去改」是電商 code 常見寫法，但它們共享底層陣列，被改到原本那份很難查。要交出「可以自由改的副本」，就 <code>make</code> + <code>copy</code>（或 <code>append([]T(nil), s...)</code>）。這牽涉到底層指標，主題 006 指標會講更透。</div>
+    <div class="callout analogy"><strong>類比</strong>slice 像「同一份 Google 文件的兩個分享連結」——你以為各拿一份，其實編輯任一個，另一個也變。要真正各自一份，得「另存新檔」（<code>copy</code>），不是「複製連結」（指派/切片）。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-slice.go</code></td><td>用 <code>append</code> 加購商品，再 <code>for range</code> 算總件數與總金額</td><td>共 <code>4</code> 件、小計 <code>4120</code> 元</td></tr>
+        <tr><td><code>homework-02-map.go</code></td><td>用 <code>map[string]int</code> 統計各分類的商品數（對不存在的 key 直接 <code>++</code>）</td><td>3C=<code>3</code>、周邊=<code>2</code>、耗材=<code>1</code>（順序不拘）</td></tr>
+        <tr><td><code>homework-03-nil與aliasing.go</code></td><td>用 <code>make</code>+<code>copy</code> 複製出獨立購物車，改副本不動原本</td><td><code>cart</code> 維持 <code>[鍵盤 滑鼠 螢幕]</code>、<code>backup</code> 是 <code>[促銷替換品 滑鼠 螢幕]</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 004-集合/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>要一個「長度會變」的清單</td><td>用 <b>slice</b> <code>[]T</code>（99% 的情況）；只有數量鐵定固定才用 array <code>[n]T</code></td></tr>
+        <tr><td>往 slice 加東西</td><td><code>s = append(s, x)</code>——<b>回傳值一定要接回去</b>（容量不夠時會配新陣列）</td></tr>
+        <tr><td>建空 slice 慢慢加</td><td>直接 <code>var xs []T</code>（nil slice）就能 <code>append</code>，不必先 <code>make</code></td></tr>
+        <tr><td>建 map</td><td>字面值 <code>map[K]V{...}</code> 或 <code>make(map[K]V)</code>；<b>絕不能只宣告就寫入</b></td></tr>
+        <tr><td>寫入 nil map</td><td>💥 panic！先 <code>make</code> / 字面值建好再寫（對比：nil slice append 是 OK 的）</td></tr>
+        <tr><td>判斷 map 的 key 在不在</td><td><code>v, ok := m[k]</code> 看 <code>ok</code>；別只看值（不存在會回零值，分不出來）</td></tr>
+        <tr><td>刪 map 的 key</td><td><code>delete(m, k)</code>；刪不存在的 key 也安全、不報錯</td></tr>
+        <tr><td>走訪 map 要固定順序</td><td>map 走訪順序<b>隨機</b>；把 key 收進 slice、<code>sort</code> 後再照 key 查</td></tr>
+        <tr><td>切一段 slice 交出去改</td><td>會<b>共享底層陣列（aliasing）</b>，改到原值！要獨立副本用 <code>make</code>+<code>copy</code></td></tr>
+        <tr><td>金額 / 錢</td><td>用 <code>int</code>（元或分），<b>別用 <code>float64</code></b>——浮點數算錢會有誤差</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 004 · 集合 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+  主題 008 · 錯誤處理 — 學習紀錄（由 new-topic skill 產生；由 Claude 維護，使用者不用手動編輯）
+  更新時機：① 使用者提問並理解後 → 補「QA 問答」（必要時補「踩坑與訂正 / 弱項雷達」）。
+            ② homework 批改後 → 補「Homework 紀錄」（理解程度＋評分＋可優化點）與「弱項雷達」。
+  每個 table 下方 HTML 註解有「一列格式範本」，複製填值即可。
+  評分尺規：理解程度 ⭐×5（★=1）；低於 ★★★ 的點自動進「弱項雷達」。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>008 · 錯誤處理 — 學習紀錄</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 10px;font-size:20px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  table{border-collapse:collapse;width:100%;margin:6px 0 4px;font-size:14px}
+  th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .empty{color:var(--muted);font-style:italic}
+  .callout{border-radius:10px;padding:12px 16px;margin:12px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a> · <a href="教學.html">看教學</a></div>
+    <h1>主題 008 · 錯誤處理 —— 學習紀錄</h1>
+    <p>由 Claude 維護的反饋紀錄：問答、踩坑、作業評分、弱項雷達。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#sum">摘要</a>
+    <a href="#hw">Homework 紀錄</a>
+    <a href="#qa">QA 問答</a>
+    <a href="#pit">踩坑與訂正</a>
+    <a href="#weak">弱項雷達</a>
+    <a href="#review">待複習</a>
+  </div>
+</nav>
+
+<main>
+
+  <div class="callout conv"><strong>這份文件怎麼長大</strong>不用你手動改。① 你問問題、理解後，Claude 記進「QA 問答」；② 你做完 homework、Claude 批改後，記進「Homework 紀錄」，弱點收進「弱項雷達」。這些會彙整到根目錄的 <a href="../學習總覽.html">學習總覽</a>。</div>
+
+  <section class="topic" id="sum">
+    <h2><span class="tag">1</span> 本主題摘要</h2>
+    <p class="empty">（學完後由 Claude 補上：這個主題最關鍵的 3~5 個重點與你的掌握狀況。）</p>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">2</span> Homework 紀錄</h2>
+    <table>
+      <thead><tr><th style="width:150px">作業</th><th style="width:78px">日期</th><th>我的解法摘要</th><th style="width:70px">評分</th><th>做對的</th><th>待加強 / idiom 違規</th></tr></thead>
+      <tbody>
+        <tr><td class="empty" colspan="6">尚無紀錄——完成任一 homework、請 Claude 批改後會出現在這裡。</td></tr>
+        <!-- 格式範本：
+        <tr><td><code>homework-NN-子主題</code></td><td>YYYY-MM-DD</td><td>解法摘要</td><td>★★★★☆</td><td>做對的點</td><td>待加強/idiom</td></tr>
+        -->
+      </tbody>
+    </table>
+  </section>
+
+  <section class="topic" id="qa">
+    <h2><span class="tag">3</span> QA 問答</h2>
+    <table>
+      <thead><tr><th style="width:90px">日期</th><th>我問了什麼</th><th>解答重點</th></tr></thead>
+      <tbody>
+        <tr><td class="empty" colspan="3">尚無紀錄——你提問並理解後，Claude 會把重點記在這裡。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="topic" id="pit">
+    <h2><span class="tag">4</span> 踩坑與訂正</h2>
+    <table>
+      <thead><tr><th>我犯的錯</th><th>為什麼錯</th><th>正解</th><th>對應 Go 慣例</th></tr></thead>
+      <tbody>
+        <tr><td class="empty" colspan="4">尚無紀錄——出現錯誤並訂正後會記在這裡，方便日後回顧。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="topic" id="weak">
+    <h2><span class="tag">5</span> 弱項雷達</h2>
+    <p class="empty">（累積反覆卡關或評分較低的點，供日後複習與盲區分析；會同步到學習總覽的弱項總表。目前尚無。）</p>
+  </section>
+
+  <section class="topic" id="review">
+    <h2><span class="tag">6</span> 待複習（間隔複習）</h2>
+    <p class="empty">（Claude 會把「值得過一陣子再回來確認」的點放這裡。目前尚無。）</p>
+  </section>
+
+</main>
+
+<footer>主題 008 · 錯誤處理 · 學習紀錄 · 由 Claude 持續維護 🚀</footer>
+</body>
+</html>

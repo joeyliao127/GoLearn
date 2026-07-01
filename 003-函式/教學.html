@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  主題 003 · 函式 — 教學文件（教學.html）
+  這是「repo 主要教材」：每一節都對應同資料夾的 sample-*.go 註解，邊讀這裡、邊跑 sample。
+  維護：純前端、無建置、單一自包含 HTML；繁中；callout 用 key/conv/trap/analogy 四種；
+        每個 sample 對應一個 .topic 群組；程式碼裡 < > & 要 escape（&lt; &gt; &amp;）。
+  注意：HTML 註解不可巢狀，註解內別再放註解起訖符號或連續雙減號。
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>003 · 函式</title>
+<style>
+  :root{--go-cyan:#00ADD8;--go-cyan-dark:#007d9c;--ink:#1c2733;--muted:#5b6b7a;--bg:#f6f8fa;--card:#fff;--border:#e1e8ed;--code-bg:#0f1720;--code-ink:#e6edf3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.75}
+  header{background:linear-gradient(135deg,var(--go-cyan) 0%,var(--go-cyan-dark) 100%);color:#fff;padding:30px 24px 24px}
+  header .wrap{max-width:940px;margin:0 auto}
+  header .crumb{font-size:13px;opacity:.9;margin-bottom:8px}
+  header .crumb a{color:#fff;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.6)}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+  nav .wrap{max-width:940px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px}
+  nav a{text-decoration:none;color:var(--go-cyan-dark);font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eaf7fb}
+  nav a:hover{background:var(--go-cyan);color:#fff}
+  main{max-width:940px;margin:0 auto;padding:26px 24px 80px}
+  .overview{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 4px;margin-bottom:28px;overflow-x:auto}
+  .overview h2{margin:14px 16px 0}
+  .mermaid{text-align:center}
+  .topic{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 2px rgba(16,40,64,.04)}
+  .topic>h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px}
+  .topic>h2 .tag{font-size:12px;font-weight:700;color:#fff;background:var(--go-cyan);padding:2px 10px;border-radius:999px;letter-spacing:.5px}
+  .topic h3{margin:24px 0 10px;font-size:16.5px;color:var(--go-cyan-dark);border-left:4px solid var(--go-cyan);padding-left:10px}
+  .maplink{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;padding-left:14px}
+  .maplink code{background:#eef2f5}
+  code{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;background:#eef2f5;color:#b03a5b;padding:1px 6px;border-radius:5px;font-size:.9em}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6}
+  pre code{background:none;color:inherit;padding:0}
+  .cmt{color:#6b8a99}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#eef6f9}
+  tbody tr:nth-child(even){background:#fafcfd}
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:5px solid;font-size:14.5px}
+  .callout strong{display:inline-block;margin-right:6px}
+  .key{background:#eafaf1;border-color:#2ecc71}
+  .conv{background:#eef4ff;border-color:#4a8cff}
+  .trap{background:#fff3ea;border-color:#ff8c42}
+  .analogy{background:#f4eeff;border-color:#9b6dff}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">🐹 Go 學習 · <a href="../學習總覽.html">← 回學習總覽</a></div>
+    <h1>主題 003 · 函式</h1>
+    <p>多回傳值、<code>(值, error)</code> 慣例、可變參數 variadic、閉包 —— 這幾樣是讀懂電商 repo 裡「拆帳、加總、折扣工廠、錯誤處理」函式簽名的關鍵，尤其 <code>(結果, error)</code> 幾乎每個 Go 函式都在用。</p>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#intro">本主題總覽</a>
+    <a href="#s1">1 多回傳值</a>
+    <a href="#s2">2 具名回傳</a>
+    <a href="#s3">3 (值,error)</a>
+    <a href="#s4">4 naked return</a>
+    <a href="#s5">5 variadic</a>
+    <a href="#s6">6 slice 攤開</a>
+    <a href="#s7">7 閉包</a>
+    <a href="#s8">8 捕捉與狀態</a>
+    <a href="#s9">9 迴圈變數</a>
+    <a href="#hw">動手練習</a>
+    <a href="#cheat">慣例小抄</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="overview" id="intro">
+    <h2>本主題總覽</h2>
+    <pre class="mermaid">
+mindmap
+  root((003 函式))
+    多回傳值
+      一次回傳多個值
+      具名回傳值
+      _ 丟掉不要的回傳
+      (值, error) 慣例
+      少用 naked return
+    variadic 可變參數
+      參數寫成 ...T
+      函式內就是 []T
+      slice... 攤開傳入
+      只能放最後一個
+    閉包 closure
+      函式是值可傳可回
+      捕捉外層變數
+      記住並改動狀態
+      各閉包狀態獨立
+      Go 1.22 迴圈變數每輪獨立
+    </pre>
+    <div style="padding:0 16px 12px">
+      <div class="callout key"><strong>你會學到</strong>Go 函式可以<b>一次回傳多個值</b>，其中最重要的是 <code>(結果, error)</code> 這個貫穿整個 Go 生態的慣例；還有收任意多個引數的 <b>variadic</b>（<code>...T</code>），以及能「記住狀態」的 <b>閉包</b>。三個 sample 各對應一組概念，邊讀邊跑。</div>
+      <div class="callout conv"><strong>怎麼用這份教材</strong>每節標題下方會標「對應哪個 sample 檔」。先讀說明 → 打開該 sample 對照註解 → <code>go run</code> 跑一次看輸出 → 最後做<a href="#hw">動手練習</a>。</div>
+    </div>
+  </section>
+
+  <!-- ===== 群組 A：多回傳值（sample-01-多回傳值）===== -->
+  <section class="topic">
+    <h2><span class="tag">A</span> 多回傳值：一次回兩個結果、具名回傳、(值, error) 慣例</h2>
+    <div class="maplink">對應檔案：<code>sample-01-多回傳值.go</code> ｜ 跑：<code>go run 003-函式/sample-01-多回傳值.go</code></div>
+
+    <h3 id="s1">1. 一次回傳多個值</h3>
+    <p>和很多語言不同，Go 函式可以<b>回傳不只一個值</b>——不用硬湊成一個 struct 或陣列。呼叫端用「多重指派」一次接住：</p>
+    <pre><code>func priceBreakdown(unitPrice, qty int) (int, int) {
+    subtotal := unitPrice * qty
+    tax := subtotal * 5 / 100
+    return subtotal, tax
+}
+
+subtotal, tax := priceBreakdown(1000, 3)   <span class="cmt">// 一次接住兩個</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>用不到某個回傳值時，用 <code>_</code> 明確丟掉：<code>_, tax := priceBreakdown(...)</code>。Go 不准「宣告了卻不用」的變數，<code>_</code> 是「我故意不要這個」的官方寫法。</div>
+    <div class="callout key"><strong>為什麼是內建</strong>多回傳值不是花招——它就是為了下面的 <code>(結果, error)</code> 慣例而生：一個位置放結果、一個位置放「有沒有出錯」，Go 因此不需要 try/catch。</div>
+
+    <h3 id="s2">2. 具名回傳值（named return values）</h3>
+    <p>可以在回傳型別的地方<b>先幫回傳值取名字</b>。<code>(subtotal, tax int)</code> 等於在函式開頭就宣告好這兩個變數（型別都是 <code>int</code>，初值是零值 <code>0</code>），函式內直接對它們賦值：</p>
+    <pre><code>func priceBreakdown(unitPrice, qty int) (subtotal, tax int) {
+    subtotal = unitPrice * qty      <span class="cmt">// 直接用、不必再宣告</span>
+    tax = subtotal * 5 / 100
+    return subtotal, tax            <span class="cmt">// 仍建議明確寫出來</span>
+}</code></pre>
+    <div class="callout analogy"><strong>類比</strong>具名回傳值像「先在表單上印好欄位名（小計、稅額）」，函式跑的時候只要把數字填進去。好處是讀函式簽名就知道「它回的兩個 int 各是什麼意思」。</div>
+
+    <h3 id="s3">3. <code>(值, error)</code> 慣例 —— Go 錯誤處理的骨架</h3>
+    <p>這是 Go <b>最重要的慣例</b>：把「可能失敗」的操作寫成回傳 <code>(結果, error)</code>；成功時 error 是 <code>nil</code>，失敗時回「零值 + 一個描述錯誤的 error」。呼叫端<b>馬上</b>用 <code>if err != nil</code> 檢查：</p>
+    <pre><code>func applyCoupon(unitPrice int, code string) (int, error) {
+    if code == "SAVE100" {
+        return unitPrice - 100, nil          <span class="cmt">// 成功：結果 + nil</span>
+    }
+    return 0, errors.New("無效的折扣碼：" + code) <span class="cmt">// 失敗：零值 + error</span>
+}
+
+price, err := applyCoupon(1000, "SAVE100")
+if err != nil {
+    <span class="cmt">// 先處理錯誤（記 log／回傳出去），通常就 return，不再往下</span>
+} else {
+    <span class="cmt">// 沒錯才用 price</span>
+}</code></pre>
+    <div class="callout key"><strong>為什麼重要</strong>Go <b>沒有 try/catch</b>；錯誤就是一個普通的回傳值。「回 <code>(值, error)</code> → 呼叫端 <code>if err != nil</code> → 早 return」是你之後在每個 Go 專案都會看到的節奏。主題 008 會把 error 的建立、包裝、比對整套講透，這裡先把「長相」記熟。</div>
+    <div class="callout conv"><strong>慣例</strong><code>error</code> 一律放<b>最後一個</b>回傳值；成功回 <code>nil</code>。搭配「if 帶初始化」寫成 <code>if _, err := applyCoupon(...); err != nil { ... }</code>，讓 <code>err</code> 只活在該 if 內（呼應主題 002）。</div>
+
+    <h3 id="s4">4. 少用 naked return（裸回傳）</h3>
+    <p>用了具名回傳值後，Go 允許只寫一個光禿禿的 <code>return</code>（不接任何東西），它會自動把「當下那幾個具名回傳值」回傳出去——這叫 naked return：</p>
+    <pre><code>func priceBreakdown(unitPrice, qty int) (subtotal, tax int) {
+    subtotal = unitPrice * qty
+    tax = subtotal * 5 / 100
+    return          <span class="cmt">// naked return：自動回 (subtotal, tax)。函式一長就很難讀</span>
+}</code></pre>
+    <div class="callout trap"><strong>陷阱／慣例</strong>naked return 在稍長的函式裡會讓人「看不出到底回了什麼」，是常見的可讀性地雷。<b>慣例是明確寫出 <code>return subtotal, tax</code></b>；naked return 只在極短的函式偶爾用。本 repo 一律明寫。</div>
+  </section>
+
+  <!-- ===== 群組 B：variadic（sample-02-variadic）===== -->
+  <section class="topic">
+    <h2><span class="tag">B</span> variadic：收任意多個引數的可變參數</h2>
+    <div class="maplink">對應檔案：<code>sample-02-variadic.go</code> ｜ 跑：<code>go run 003-函式/sample-02-variadic.go</code></div>
+
+    <h3 id="s5">5. <code>...T</code> 可變參數 —— 想傳幾個就傳幾個</h3>
+    <p>把最後一個參數寫成 <code>名字 ...T</code>，呼叫時就能帶 <b>0 個、1 個或任意多個</b> 引數（像 <code>fmt.Println</code> 那樣）。在函式<b>內部</b>，這個參數其實就是一個 <code>[]T</code>，可以直接 <code>for range</code> 走訪或用 <code>len()</code>：</p>
+    <pre><code>func sum(prices ...int) int {   <span class="cmt">// prices 在函式內就是 []int</span>
+    total := 0
+    for _, p := range prices {
+        total += p
+    }
+    return total
+}
+
+sum(2490, 290, 190)   <span class="cmt">// 傳 3 個 → 2970</span>
+sum(999)              <span class="cmt">// 傳 1 個 → 999</span>
+sum()                 <span class="cmt">// 傳 0 個 → 0（prices 是空 slice）</span></code></pre>
+    <div class="callout analogy"><strong>類比</strong>variadic 像結帳台的輸送帶：你要放幾件商品都行，收銀機（函式）在裡面把它們當成「一排東西」（<code>[]int</code>）逐一處理。</div>
+
+    <h3 id="s6">6. 用 <code>slice...</code> 把既有的 slice 攤開</h3>
+    <p>如果價格<b>本來就裝在一個 <code>[]int</code> 裡</b>，不能直接把整個 slice 當「一個引數」丟給 variadic 參數（型別對不上）。要在後面加 <code>...</code>，Go 才會把它「攤平」成一個個引數：</p>
+    <pre><code>cartPrices := []int{1200, 350, 80, 80}
+sum(cartPrices...)    <span class="cmt">// ✅ 把 slice 攤開成 4 個引數</span>
+<span class="cmt">// sum(cartPrices) ❌ 編譯錯：型別是 []int，不是一串 int</span></code></pre>
+    <div class="callout conv"><strong>慣例</strong>兩個規則要記牢：① variadic 參數<b>只能是最後一個</b>（前面可有普通參數，如 <code>func f(name string, items ...int)</code>）；② 傳既有 slice 進 variadic 一定要加 <code>...</code> 攤開。</div>
+    <div class="callout trap"><strong>陷阱</strong><code>sum(cartPrices)</code>（少了 <code>...</code>）會編譯失敗；而 <code>append</code> 也吃這招——<code>append(a, b...)</code> 才是把 <code>b</code> 整個接到 <code>a</code> 後面（主題 004 會用到）。</div>
+  </section>
+
+  <!-- ===== 群組 C：閉包（sample-03-閉包）===== -->
+  <section class="topic">
+    <h2><span class="tag">C</span> 閉包：函式是值、能捕捉並記住狀態</h2>
+    <div class="maplink">對應檔案：<code>sample-03-閉包.go</code> ｜ 跑：<code>go run 003-函式/sample-03-閉包.go</code></div>
+
+    <div class="callout key"><strong>核心觀念</strong>在 Go 裡<b>函式是「值」</b>：可以存進變數、當參數傳、當回傳值。當一個函式「用到了它外層的變數」，它就形成<b>閉包（closure）</b>——會把那個外層變數<b>捕捉</b>起來，之後還記得、還能改。</div>
+
+    <h3 id="s7">7. 函式是值 &amp; 工廠函式</h3>
+    <p><code>makeCart()</code> 不直接算錢，而是<b>回傳一個函式</b>。這種「產生函式的函式」很常見（工廠函式）。回傳值型別 <code>func(price int) int</code> 就是「吃一個 int、回一個 int 的函式」：</p>
+    <pre><code>func makeCart() func(price int) int {
+    total := 0
+    return func(price int) int {   <span class="cmt">// 回傳一個匿名函式</span>
+        total += price
+        return total
+    }
+}
+
+addToCart := makeCart()   <span class="cmt">// addToCart 現在是一個函式</span></code></pre>
+
+    <h3 id="s8">8. 捕捉外層變數、記住並改動狀態</h3>
+    <p>上面那個匿名函式用到了外層的 <code>total</code>，於是<b>捕捉</b>了它。關鍵：捕捉的是<b>那個變數本身（by reference），不是它當下的值</b>——所以每次呼叫都在同一個 <code>total</code> 上累加，它「記得」上一次的結果：</p>
+    <pre><code>addToCart := makeCart()
+addToCart(2490)   <span class="cmt">// 2490</span>
+addToCart(290)    <span class="cmt">// 2780（記得上次的 2490）</span>
+addToCart(190)    <span class="cmt">// 2970</span>
+
+cartA := makeCart()   <span class="cmt">// 再叫一次 → 全新、獨立的 total</span>
+cartB := makeCart()
+cartA(100); cartA(100)   <span class="cmt">// 100 → 200</span>
+cartB(500)               <span class="cmt">// 500（完全不受 A 影響）</span></code></pre>
+    <div class="callout analogy"><strong>類比</strong>每呼叫一次 <code>makeCart()</code> 就像「發一台新的計數器」，它把自己的 <code>total</code> 藏在肚子裡（其他人拿不到）。同一台一直加會累積；不同台各記各的。這是閉包「封裝私有狀態」的威力。</div>
+    <div class="callout trap"><strong>接續 002 的伏筆</strong>還記得主題 002 說「<code>defer</code> 的參數在當下就凍結，但包一層匿名函式就會讀最新值」嗎？原因就在這裡：閉包捕捉的是<b>變數</b>，在<b>執行時</b>才去讀它，所以讀到的是最新的值。</div>
+
+    <h3 id="s9">9. Go 1.22 起：for 迴圈變數「每輪獨立」</h3>
+    <p>一個經典陷阱：在迴圈裡建立多個閉包、各自捕捉迴圈變數。<b>Go 1.21 以前</b>整個迴圈共用同一個變數，所有閉包最後都讀到「最後一輪的值」；<b>Go 1.22 起</b>每一輪的迴圈變數是<b>獨立副本</b>，閉包各自捕捉到正確的值：</p>
+    <pre><code>names := []string{"鍵盤", "滑鼠", "螢幕"}
+var printers []func()
+for _, name := range names {
+    printers = append(printers, func() { fmt.Println(name) })
+}
+for _, p := range printers { p() }
+<span class="cmt">// Go 1.22+：依序印 鍵盤 / 滑鼠 / 螢幕</span>
+<span class="cmt">// Go 1.21-：會全印成「螢幕」（都捕捉到同一個 name）</span></code></pre>
+    <div class="callout key"><strong>為什麼你多半不用煩惱</strong>本 repo 的 <code>go.mod</code> 是 <code>go 1.26.4</code>，早已是新行為，上面的程式碼會印出正確結果。但你在網路上會看到大量「舊寫法」教你 <code>name := name</code> 手動複製一份——那是 1.22 前的解法，現在不需要了。知道有這回事，看老 code 才不會困惑。</div>
+  </section>
+
+  <section class="topic" id="hw">
+    <h2><span class="tag">練習</span> 動手練習（每題 ≤ 5 分鐘）</h2>
+    <p>打開對應的 <code>homework-*.go</code>，照 TODO 完成，<code>go run</code> 驗證。寫完可請 Claude 批改、記進<a href="學習紀錄.html">學習紀錄</a>。</p>
+    <table>
+      <thead><tr><th>作業</th><th>做什麼</th><th>驗收</th></tr></thead>
+      <tbody>
+        <tr><td><code>homework-01-多回傳值.go</code></td><td>寫 <code>taxedPrice</code> 用具名回傳值一次回「含稅價、稅額」</td><td>單價 1000、數量 2 → 含稅價 <code>2100</code>（稅 <code>100</code>）；數量 1 → <code>1050</code>／稅 <code>50</code></td></tr>
+        <tr><td><code>homework-02-variadic.go</code></td><td>寫 <code>withTags(name, tags ...string)</code> 組出「名稱＋標籤」字串</td><td>印「機械鍵盤（<code>3</code> 個標籤）：熱銷, 限量, 免運」；只給名稱 → 「滑鼠墊（<code>0</code> 個標籤）：」</td></tr>
+        <tr><td><code>homework-03-閉包.go</code></td><td>寫工廠函式 <code>makeDiscount(percent)</code> 回傳一個打折閉包</td><td><code>makeDiscount(20)</code> 造 8 折機：<code>1000</code>→<code>800</code>、<code>500</code>→<code>400</code>；改 50 則 1000→<code>500</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout conv"><strong>跑法</strong>例如：<code>go run 003-函式/homework-01-xxx.go</code>。每個檔都是獨立的（<code>//go:build ignore</code>），單獨跑就好。</div>
+  </section>
+
+  <section class="topic" id="cheat">
+    <h2><span class="tag">小抄</span> 本主題慣例與陷阱總表</h2>
+    <table>
+      <thead><tr><th>情境</th><th>慣例 / 正解</th></tr></thead>
+      <tbody>
+        <tr><td>函式要回兩個以上結果</td><td>直接多回傳值 <code>func f() (int, int)</code>；呼叫端 <code>a, b := f()</code> 一次接住</td></tr>
+        <tr><td>用不到某個回傳值</td><td>用 <code>_</code> 丟掉：<code>_, b := f()</code>（Go 不准宣告了不用）</td></tr>
+        <tr><td>操作可能失敗</td><td>回 <code>(結果, error)</code>；<code>error</code> 放<b>最後一個</b>；成功回 <code>nil</code>，呼叫端立刻 <code>if err != nil</code></td></tr>
+        <tr><td>錯誤處理</td><td>Go <b>沒有 try/catch</b>；早 return、不吞錯（細節見主題 008）</td></tr>
+        <tr><td>具名回傳值 + return</td><td>可用但<b>建議明確寫 <code>return a, b</code></b>；naked return（光禿 <code>return</code>）在長函式難讀，少用</td></tr>
+        <tr><td>收任意多個引數</td><td>最後一個參數寫 <code>xs ...T</code>；函式內它是 <code>[]T</code>；<b>只能放最後一個</b></td></tr>
+        <tr><td>把既有 slice 傳進 variadic</td><td>加 <code>...</code> 攤開：<code>sum(prices...)</code>；忘了加會編譯錯</td></tr>
+        <tr><td>需要「記住狀態」的函式</td><td>用閉包：工廠函式回傳匿名函式，捕捉外層變數（by reference，改得到也記得住）</td></tr>
+        <tr><td>迴圈裡建立多個閉包</td><td>Go <b>1.22 起</b>迴圈變數每輪獨立、自動正確；老 code 的 <code>x := x</code> 手動複製現已不需要</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>主題 003 · 函式 · 用 VSCode 內建 Simple Browser 開啟閱讀 🚀</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad:true, theme:'neutral', securityLevel:'loose' });
+</script>
+</body>
+</html>
